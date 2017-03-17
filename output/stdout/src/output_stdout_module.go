@@ -2,7 +2,7 @@
  * Copyright (C) 2017 Meng Shi
  */
 
-package stdout_modules
+package stdout
 
 import (
       "unsafe"

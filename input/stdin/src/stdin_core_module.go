@@ -2,12 +2,11 @@
  * Copyright (C) 2017 Meng Shi
  */
 
-package stdin_modules
+package stdin
 
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
-"fmt"
 )
 
 type StdinCore struct {
@@ -87,14 +86,6 @@ var coreStdinModule = Module{
     coreStdinMain,
 }
 
-<<<<<<< HEAD
-func coreStdinInit(cycle *AbstractCycle) int {
-    return Ok
-}
-
-func coreStdinMain(cycle *AbstractCycle) int {
-    fmt.Println("stdin main")
-=======
 func coreStdinInit(cycle *Cycle) int {
     /*
     context := cycle.GetContext(10)
@@ -114,7 +105,6 @@ func coreStdinInit(cycle *Cycle) int {
 }
 
 func coreStdinMain(cycle *Cycle) int {
->>>>>>> 6a7781c2aa20c39bae6abd9cfb65bdcb3653261a
     return Ok
 }
 

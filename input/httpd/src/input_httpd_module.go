@@ -2,7 +2,7 @@
  * Copyright (C) 2017 Meng Shi
  */
 
-package modules
+package httpd
 
 import (
       "unsafe"
@@ -10,23 +10,23 @@ import (
 )
 
 const (
-    HTTP_MODULE = 0x0001
-    HTTP_CONFIG = 0x00010000
+    HTTPD_MODULE = 0x0001
+    HTTPD_CONFIG = 0x00010000
 )
 
-var httpModule = String{ len("http_module"), "http_module" }
-var inputHttpContext = &AbstractContext{
-    httpModule,
+var httpdModule = String{ len("httpd_module"), "httpd_module" }
+var inputHttpdContext = &Context{
+    httpdModule,
     nil,
     nil,
 }
 
-var httpd = String{ len("httpd"), "httpd" }
-var inputHttpCommands = []Command{
+var httpdd = String{ len("httpd"), "httpd" }
+var inputHttpdCommands = []Command{
 
-    { httpd,
+    { httpdd,
       USER_CONFIG|CONFIG_BLOCK,
-      httpBlock,
+      httpdBlock,
       0,
       0,
       nil },
@@ -34,10 +34,14 @@ var inputHttpCommands = []Command{
     NilCommand,
 }
 
-func httpBlock(configure *AbstractConfigure, command *Command, cycle *AbstractCycle, config *unsafe.Pointer) string {
+func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
+    if cycle == nil {
+        return Error
+    }
+
     for m := 0; Modules[m] != nil; m++ {
         module := Modules[m]
-        if module.Type != HTTP_MODULE {
+        if module.Type != HTTPD_MODULE {
             continue
         }
 
@@ -46,11 +50,11 @@ func httpBlock(configure *AbstractConfigure, command *Command, cycle *AbstractCy
 
     for m := 0; Modules[m] != nil; m++ {
         module := Modules[m]
-        if module.Type != HTTP_MODULE {
+        if module.Type != HTTPD_MODULE {
             continue
         }
 
-        context := (*AbstractContext)(unsafe.Pointer(module.Context))
+        context := (*Context)(unsafe.Pointer(module.Context))
         if context == nil {
             continue
         }
@@ -58,30 +62,35 @@ func httpBlock(configure *AbstractConfigure, command *Command, cycle *AbstractCy
         if handle := context.Create; handle != nil {
             this := handle(cycle)
             if cycle.SetContext(module.Index, &this) == Error {
-                return "0"
+                return Error
             }
         }
     }
 
-    if configure.SetModuleType(HTTP_MODULE) == Error {
-        return "0"
+    configure := cycle.GetConfigure()
+    if configure == nil {
+        return Error
     }
 
-    if configure.SetCommandType(HTTP_CONFIG) == Error {
-        return "0"
+    if configure.SetModuleType(HTTPD_MODULE) == Error {
+        return Error
+    }
+
+    if configure.SetCommandType(HTTPD_CONFIG) == Error {
+        return Error
     }
 
     if configure.Parse(cycle) == Error {
-        return "0"
+        return Error
     }
 
     for m := 0; Modules[m] != nil; m++ {
         module := Modules[m]
-        if module.Type != HTTP_MODULE {
+        if module.Type != HTTPD_MODULE {
             continue
         }
 
-        this := (*AbstractContext)(unsafe.Pointer(module.Context))
+        this := (*Context)(unsafe.Pointer(module.Context))
         if this == nil {
             continue
         }
@@ -93,24 +102,24 @@ func httpBlock(configure *AbstractConfigure, command *Command, cycle *AbstractCy
 
         if init := this.Init; init != nil {
             if init(cycle, context) == "-1" {
-                return "0"
+                return Error
             }
         }
     }
 
-    return "0"
+    return Ok
 }
 
-var inputHttpModule = Module{
+var inputHttpdModule = Module{
     MODULE_V1,
     CONTEXT_V1,
-    unsafe.Pointer(inputHttpContext),
-    inputHttpCommands,
+    unsafe.Pointer(inputHttpdContext),
+    inputHttpdCommands,
     INPUT_MODULE,
     nil,
     nil,
 }
 
 func init() {
-    Modules = append(Modules, &inputHttpModule)
+    Modules = append(Modules, &inputHttpdModule)
 }

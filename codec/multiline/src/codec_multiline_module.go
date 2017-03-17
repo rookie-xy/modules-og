@@ -2,7 +2,7 @@
  * Copyright (C) 2017 Meng Shi
  */
 
-package multiline_modules
+package multiline
 
 import (
       "unsafe"

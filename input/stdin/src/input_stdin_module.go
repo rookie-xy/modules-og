@@ -2,7 +2,7 @@
  * Copyright (C) 2017 Meng Shi
  */
 
-package stdin_modules
+package stdin
 
 import (
       "unsafe"

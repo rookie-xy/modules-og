@@ -2,7 +2,7 @@
  * Copyright (C) 2017 Meng Shi
  */
 
-package modules
+package httpd
 
 import (
       "net/http"
@@ -19,49 +19,49 @@ const (
     LOCATION_CONFIG = 0x00050000
 )
 
-type AbstractHttpCore struct {
-    *AbstractCycle
-    *AbstractFile
+type HttpdCore struct {
+    *Cycle
+    *File
 
      listen    string
      timeout   int
-     location  *AbstractLocationHttp
+     location  *LocationHttpd
 }
 
-func NewHttpCore() *AbstractHttpCore {
-    return &AbstractHttpCore{}
+func NewHttpdCore() *HttpdCore {
+    return &HttpdCore{}
 }
 
-var httpCore = String{ len("http_core"), "http_core" }
-var coreHttpContext = &AbstractContext{
-    httpCore,
-    coreHttpContextCreate,
-    coreHttpContextInit,
+var httpdCore = String{ len("httpd_core"), "httpd_core" }
+var coreHttpdContext = &Context{
+    httpdCore,
+    coreHttpdContextCreate,
+    coreHttpdContextInit,
 }
 
-func coreHttpContextCreate(cycle *AbstractCycle) unsafe.Pointer {
-    coreHttp := NewHttpCore()
-    if coreHttp == nil {
+func coreHttpdContextCreate(cycle *Cycle) unsafe.Pointer {
+    coreHttpd := NewHttpdCore()
+    if coreHttpd == nil {
         return nil
     }
 
-    coreHttp.listen = "127.0.0.1:9800"
-    coreHttp.timeout = 3
-    coreHttp.location = nil
+    coreHttpd.listen = "127.0.0.1:9800"
+    coreHttpd.timeout = 3
+    coreHttpd.location = nil
 
-    return unsafe.Pointer(coreHttp)
+    return unsafe.Pointer(coreHttpd)
 }
 
-func coreHttpContextInit(cycle *AbstractCycle, context *unsafe.Pointer) string {
+func coreHttpdContextInit(cycle *Cycle, context *unsafe.Pointer) string {
     log := cycle.GetLog()
 
-    this := (*AbstractHttpCore)(unsafe.Pointer(uintptr(*context)))
+    this := (*HttpdCore)(unsafe.Pointer(uintptr(*context)))
     if this == nil {
         log.Error("error")
         return "0"
     }
 
-    coreHttp = *this
+    coreHttpd = *this
 
     return "0"
 }
@@ -71,36 +71,40 @@ var (
     timeout  = String{ len("timeout"), "timeout" }
     location = String{ len("location"), "location" }
 
-    coreHttp  AbstractHttpCore
+    coreHttpd  HttpdCore
 )
 
-var coreHttpCommands = []Command{
+var coreHttpdCommands = []Command{
 
     { listen,
-      HTTP_CONFIG,
+      HTTPD_CONFIG,
       SetString,
       0,
-      unsafe.Offsetof(coreHttp.listen),
+      unsafe.Offsetof(coreHttpd.listen),
       nil },
 
     { timeout,
-      HTTP_CONFIG,
+      HTTPD_CONFIG,
       SetNumber,
       0,
-      unsafe.Offsetof(coreHttp.timeout),
+      unsafe.Offsetof(coreHttpd.timeout),
       nil },
 
     { location,
-      HTTP_CONFIG,
+      HTTPD_CONFIG,
       locationBlock,
       0,
-      unsafe.Offsetof(coreHttp.location),
+      unsafe.Offsetof(coreHttpd.location),
       nil },
 
     NilCommand,
 }
 
-func locationBlock(configure *AbstractConfigure, command *Command, cycle *AbstractCycle, config *unsafe.Pointer) string {
+func locationBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
+    if cycle == nil {
+        return Error
+    }
+
     for m := 0; Modules[m] != nil; m++ {
         module := Modules[m]
         if module.Type != LOCATION_MODULE {
@@ -116,7 +120,7 @@ func locationBlock(configure *AbstractConfigure, command *Command, cycle *Abstra
             continue
         }
 
-        context := (*AbstractContext)(unsafe.Pointer(module.Context))
+        context := (*Context)(unsafe.Pointer(module.Context))
         if context == nil {
             continue
         }
@@ -124,21 +128,26 @@ func locationBlock(configure *AbstractConfigure, command *Command, cycle *Abstra
         if handle := context.Create; handle != nil {
             this := handle(cycle)
             if cycle.SetContext(module.Index, &this) == Error {
-                return "0"
+                return Error
             }
         }
     }
 
+    configure := cycle.GetConfigure()
+    if configure == nil {
+        return Error
+    }
+
     if configure.SetModuleType(LOCATION_MODULE) == Error {
-        return "0"
+        return Error
     }
 
     if configure.SetCommandType(LOCATION_CONFIG) == Error {
-        return "0"
+        return Error
     }
 
     if configure.Parse(cycle) == Error {
-        return "0"
+        return Error
     }
 
     for m := 0; Modules[m] != nil; m++ {
@@ -147,7 +156,7 @@ func locationBlock(configure *AbstractConfigure, command *Command, cycle *Abstra
             continue
         }
 
-        this := (*AbstractContext)(unsafe.Pointer(module.Context))
+        this := (*Context)(unsafe.Pointer(module.Context))
         if this == nil {
             continue
         }
@@ -159,34 +168,34 @@ func locationBlock(configure *AbstractConfigure, command *Command, cycle *Abstra
 
         if init := this.Init; init != nil {
             if init(cycle, context) == "-1" {
-                return "0"
+                return Error
             }
         }
     }
 
-    return "0"
+    return Ok
 }
 
-var coreHttpModule = Module{
+var coreHttpdModule = Module{
     MODULE_V1,
     CONTEXT_V1,
-    unsafe.Pointer(coreHttpContext),
-    coreHttpCommands,
-    HTTP_MODULE,
-    coreHttpInit,
-    coreHttpMain,
+    unsafe.Pointer(coreHttpdContext),
+    coreHttpdCommands,
+    HTTPD_MODULE,
+    coreHttpdInit,
+    coreHttpdMain,
 }
 
-func coreHttpInit(cycle *AbstractCycle) int {
-    fmt.Println(coreHttp.listen)
-//    fmt.Println(coreHttp.timeout)
+func coreHttpdInit(cycle *Cycle) int {
+    fmt.Println(coreHttpd.listen)
+//    fmt.Println(coreHttpd.timeout)
 
-    if coreHttp.location == nil {
-        coreHttp.location = &httpLocation
+    if coreHttpd.location == nil {
+        coreHttpd.location = &httpdLocation
     }
 
-//    fmt.Println(coreHttp.location.document)
-//    fmt.Println(coreHttp.location.bufsize)
+//    fmt.Println(coreHttpd.location.document)
+//    fmt.Println(coreHttpd.location.bufsize)
 
     return Ok
 }
@@ -199,10 +208,10 @@ func (s *SwitchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     s.mux.ServeHTTP(w, r)
 }
 
-func coreHttpMain(cycle *AbstractCycle) int {
-    fmt.Println("http main")
+func coreHttpdMain(cycle *Cycle) int {
+    fmt.Println("httpd main")
 
-    doccument := coreHttp.location.document
+    doccument := coreHttpd.location.document
     path := doccument[strings.LastIndex(doccument, "/") : ] + "/"
     if path == "" {
         return Error
@@ -219,7 +228,7 @@ func coreHttpMain(cycle *AbstractCycle) int {
     handler := &SwitchHandler{mux: r}
     http.Handle("/", handler)
 
-    err := http.ListenAndServe(coreHttp.listen, nil)
+    err := http.ListenAndServe(coreHttpd.listen, nil)
     if err != nil {
         fmt.Println("ok")
     } else {
@@ -230,5 +239,5 @@ func coreHttpMain(cycle *AbstractCycle) int {
 }
 
 func init() {
-    Modules = append(Modules, &coreHttpModule)
+    Modules = append(Modules, &coreHttpdModule)
 }

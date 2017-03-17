@@ -2,7 +2,7 @@
  * Copyright (C) 2017 Meng Shi
  */
 
-package grok_modules
+package grok
 
 import (
       "unsafe"

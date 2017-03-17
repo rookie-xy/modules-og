@@ -2,7 +2,7 @@
  * Copyright (C) 2017 Meng Shi
  */
 
-package memory_modules
+package memory
 
 import (
       "unsafe"
