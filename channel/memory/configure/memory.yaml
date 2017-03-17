@@ -1,0 +1,4 @@
+channals:
+    - memory:
+          name: test_memory_1
+          size: 2048

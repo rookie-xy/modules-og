@@ -1,0 +1,5 @@
+codecs:
+    multiline:
+        match: "^{ISO_9002_TIMESTAMP}"
+        previous: ""
+        next: ""

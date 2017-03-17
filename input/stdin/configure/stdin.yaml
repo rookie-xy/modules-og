@@ -1,0 +1,12 @@
+inputs:
+    - stdin:
+          status: on
+          channal: input_channal_name_1
+
+    - stdin:
+          status: off
+          channal: input_channal_name_2
+
+    - stdin:
+          status: on
+          channal: input_channal_name_3

@@ -1,0 +1,5 @@
+filters:
+    - grok:
+          pattern:
+              - "{LOG_LEVEL} -"
+              - "{STRING} -"

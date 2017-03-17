@@ -1,0 +1,12 @@
+outputs:
+    - stdout:
+          status: on
+          channal: output_channal_name_1
+
+    - stdout:
+          status: on
+          channal: output_channal_name_2
+
+    - stdout:
+          status: on
+          channal: output_channal_name_3

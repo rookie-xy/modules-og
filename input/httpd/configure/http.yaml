@@ -1,0 +1,8 @@
+inputs:
+    - http:
+          listen: 127.0.0.1:8900
+          timeout: 10
+
+          location:
+              document: /data/service/html
+              bufsize: 2048
