@@ -1,1 +1,1 @@
-# worker-channel-modules
+# channel modules
