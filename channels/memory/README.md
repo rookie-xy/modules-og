@@ -1,1 +1,1 @@
-# channel modules
+# memory modules
