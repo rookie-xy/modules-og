@@ -1,1 +1,1 @@
-# worker-output-modules
+# stdout module

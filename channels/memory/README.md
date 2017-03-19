@@ -1,1 +1,1 @@
-# memory modules
+# memory module

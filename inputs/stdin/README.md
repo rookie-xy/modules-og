@@ -1,1 +1,1 @@
-# worker-input-modules
+# stdin module
