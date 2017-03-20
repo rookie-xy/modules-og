@@ -16,14 +16,14 @@ const (
 )
 
 var mlogModule = String{ len("mlog_module"), "mlog_module" }
-var inputMlogContext = &Context{
+var logMlogContext = &Context{
     mlogModule,
     nil,
     nil,
 }
 
 var mlog = String{ len("mlog"), "mlog" }
-var inputMlogCommands = []Command{
+var logMlogCommands = []Command{
 
     { mlog,
       USER_CONFIG|CONFIG_BLOCK,
@@ -112,16 +112,16 @@ func mlogBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
     return Ok
 }
 
-var inputMlogModule = Module{
+var logMlogModule = Module{
     MODULE_V1,
     CONTEXT_V1,
-    unsafe.Pointer(inputMlogContext),
-    inputMlogCommands,
+    unsafe.Pointer(logMlogContext),
+    logMlogCommands,
     LOG_MODULE,
     nil,
     nil,
 }
 
 func init() {
-    Modules = append(Modules, &inputMlogModule)
+    Modules = append(Modules, &logMlogModule)
 }
