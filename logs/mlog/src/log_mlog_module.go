@@ -2,31 +2,32 @@
  * Copyright (C) 2017 Meng Shi
  */
 
-package httpd
+package mlog
 
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
+    "fmt"
 )
 
 const (
-    HTTPD_MODULE = 0x0001
-    HTTPD_CONFIG = 0x00010000
+    MLOG_MODULE = 0x0002
+    MLOG_CONFIG = 0x00020000
 )
 
-var httpdModule = String{ len("httpd_module"), "httpd_module" }
-var inputHttpdContext = &Context{
-    httpdModule,
+var mlogModule = String{ len("mlog_module"), "mlog_module" }
+var inputMlogContext = &Context{
+    mlogModule,
     nil,
     nil,
 }
 
-var httpd = String{ len("httpd"), "httpd" }
-var inputHttpdCommands = []Command{
+var mlog = String{ len("mlog"), "mlog" }
+var inputMlogCommands = []Command{
 
-    { httpd,
+    { mlog,
       USER_CONFIG|CONFIG_BLOCK,
-      httpdBlock,
+      mlogBlock,
       0,
       0,
       nil },
@@ -34,14 +35,14 @@ var inputHttpdCommands = []Command{
     NilCommand,
 }
 
-func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
+func mlogBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
     if cycle == nil {
         return Error
     }
 
     for m := 0; Modules[m] != nil; m++ {
         module := Modules[m]
-        if module.Type != HTTPD_MODULE {
+        if module.Type != MLOG_MODULE {
             continue
         }
 
@@ -50,7 +51,7 @@ func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
 
     for m := 0; Modules[m] != nil; m++ {
         module := Modules[m]
-        if module.Type != HTTPD_MODULE {
+        if module.Type != MLOG_MODULE {
             continue
         }
 
@@ -61,8 +62,9 @@ func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
 
         if handle := context.Create; handle != nil {
             this := handle(cycle)
+            fmt.Println(module.Index)
             if cycle.SetContext(module.Index, &this) == Error {
-                return Error
+												    return Error
             }
         }
     }
@@ -72,12 +74,12 @@ func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
         return Error
     }
 
-    if configure.SetModuleType(HTTPD_MODULE) == Error {
-        return Error
+    if configure.SetModuleType(MLOG_MODULE) == Error {
+				    return Error
     }
 
-    if configure.SetCommandType(HTTPD_CONFIG) == Error {
-        return Error
+    if configure.SetCommandType(MLOG_CONFIG) == Error {
+				    return Error
     }
 
     if configure.Materialized(cycle) == Error {
@@ -86,7 +88,7 @@ func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
 
     for m := 0; Modules[m] != nil; m++ {
         module := Modules[m]
-        if module.Type != HTTPD_MODULE {
+        if module.Type != MLOG_MODULE {
             continue
         }
 
@@ -110,16 +112,16 @@ func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
     return Ok
 }
 
-var inputHttpdModule = Module{
+var inputMlogModule = Module{
     MODULE_V1,
     CONTEXT_V1,
-    unsafe.Pointer(inputHttpdContext),
-    inputHttpdCommands,
-    INPUT_MODULE,
+    unsafe.Pointer(inputMlogContext),
+    inputMlogCommands,
+    LOG_MODULE,
     nil,
     nil,
 }
 
 func init() {
-    Modules = append(Modules, &inputHttpdModule)
+    Modules = append(Modules, &inputMlogModule)
 }

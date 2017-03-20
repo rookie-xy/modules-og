@@ -10,12 +10,11 @@ import (
 
 type simpleOption struct {
     *Option
-
-    option OptionIf
+     option OptionIf
 }
 
-func NewSimpleOption() *simpleOption {
-    return &simpleOption{ nil, nil }
+func NewSimpleOption(option *Option) *simpleOption {
+    return &simpleOption{ option, nil }
 }
 
 func (so *simpleOption) SetOption(option *Option) int {
@@ -32,7 +31,7 @@ func (so *simpleOption) GetOption() *Option {
     return so.Option
 }
 
-func (o *simpleOption) Parse() int {
+func (o *simpleOption) Parser() int {
     log := o.Log
 
     argv := o.GetArgv()
@@ -46,9 +45,9 @@ func (o *simpleOption) Parse() int {
         switch argv[i][1] {
 
         case 'c':
-	    if argv[i + 1] == "" {
-	        return Error
-	    }
+	           if argv[i + 1] == "" {
+                return Error
+            }
 
             // file://path=/home/
             o.SetItem("configure", "file://resource=" + argv[i + 1])
@@ -56,9 +55,9 @@ func (o *simpleOption) Parse() int {
             break
 
         case 'z':
-	    if argv[i + 1] == "" {
-	        return Error
-	    }
+	           if argv[i + 1] == "" {
+	               return Error
+	           }
 
             // file://path=/home/
             o.SetItem("configure", "zookeeper://resource=" + argv[i + 1])
@@ -67,7 +66,7 @@ func (o *simpleOption) Parse() int {
 
         case 't':
             o.SetItem("test", true)
-	    break
+	           break
 
         default:
             o.SetItem("invaild", "")
@@ -81,32 +80,23 @@ func (o *simpleOption) Parse() int {
 }
 
 func initSimpleOptionModule(cycle *Cycle) int {
-
-
     option := cycle.GetOption()
     if option == nil {
         return Error
     }
 
-    simpleOption := NewSimpleOption()
-
-    //simpleOption.SetOptionIf(simpleOption)
     log := option.Log
 
-    if simpleOption.SetOption(option) == Error {
-        log.Error("set option error")
+    simpleOption := NewSimpleOption(option)
+    if simpleOption == nil {
+        log.Error("new simple option error")
         return Error
     }
 
-    simpleOption.option = simpleOption
-/*
-    fmt.Println("menggggggggggggggggggggggggggggggg")
-    if simpleOption.option.Parse() == Error {
+    if option.Set(simpleOption) == Error {
+        log.Error("set option interface error")
         return Error
     }
-    */
-
-    option.SetOptionIf(simpleOption.option)
 
     return Ok
 }

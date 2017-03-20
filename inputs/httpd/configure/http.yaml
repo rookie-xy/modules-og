@@ -1,5 +1,5 @@
 inputs:
-    - http:
+    - httpd:
           listen: 127.0.0.1:8900
           timeout: 10
 

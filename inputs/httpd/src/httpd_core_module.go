@@ -91,7 +91,7 @@ var coreHttpdCommands = []Command{
       nil },
 
     { location,
-      HTTPD_CONFIG,
+      HTTPD_CONFIG|CONFIG_BLOCK,
       locationBlock,
       0,
       unsafe.Offsetof(coreHttpd.location),
@@ -146,7 +146,7 @@ func locationBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
         return Error
     }
 
-    if configure.Parse(cycle) == Error {
+    if configure.Materialized(cycle) == Error {
         return Error
     }
 
@@ -187,7 +187,7 @@ var coreHttpdModule = Module{
 }
 
 func coreHttpdInit(cycle *Cycle) int {
-    fmt.Println(coreHttpd.listen)
+//    fmt.Println(coreHttpd.listen)
 //    fmt.Println(coreHttpd.timeout)
 
     if coreHttpd.location == nil {
@@ -211,8 +211,11 @@ func (s *SwitchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func coreHttpdMain(cycle *Cycle) int {
     fmt.Println("httpd main")
 
-    doccument := coreHttpd.location.document
-    path := doccument[strings.LastIndex(doccument, "/") : ] + "/"
+    log := cycle.Log
+    fmt.Println(log.GetPath())
+
+    document := coreHttpd.location.document
+    path := document[strings.LastIndex(document, "/") : ] + "/"
     if path == "" {
         return Error
     }
