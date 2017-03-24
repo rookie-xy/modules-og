@@ -7,6 +7,7 @@ package stdout
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
+"fmt"
 )
 
 type StdoutCore struct {
@@ -47,6 +48,8 @@ func coreStdoutContextInit(cycle *Cycle, context *unsafe.Pointer) string {
         log.Error("coreStdoutContextInit error")
         return "0"
     }
+
+    fmt.Println(this.channal)
 
     return "0"
 }

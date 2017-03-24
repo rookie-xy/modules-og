@@ -7,10 +7,11 @@ package memory
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
+"fmt"
 )
 
 type MemoryCore struct {
-    *Channal
+    *Channel
     *Cycle
 
      name     string
@@ -47,6 +48,8 @@ func coreContextInit(cycle *Cycle, context *unsafe.Pointer) string {
         log.Error("coreStdinContextInit error")
         return "0"
     }
+
+    fmt.Println(this.name)
 
     return "0"
 }

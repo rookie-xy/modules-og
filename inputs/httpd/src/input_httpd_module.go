@@ -10,8 +10,8 @@ import (
 )
 
 const (
-    HTTPD_MODULE = 0x0001
-    HTTPD_CONFIG = 0x00010000
+    HTTPD_MODULE = 0x6E6900000002
+    HTTPD_CONFIG = 0x000000026E69
 )
 
 var httpdModule = String{ len("httpd_module"), "httpd_module" }

@@ -7,12 +7,12 @@ package yaml
 import (
       "gopkg.in/yaml.v2"
     . "github.com/rookie-xy/worker/types"
-    "fmt"
 )
 
 type yamlConfigure struct {
     *Configure
      configure ConfigureIf
+//     Parser
 }
 
 func NewYamlConfigure(configure *Configure) *yamlConfigure {
@@ -29,14 +29,26 @@ func (yc *yamlConfigure) SetConfigure(configure *Configure) int {
     return Ok
 }
 
-func (so *yamlConfigure) GetConfigure() *Configure {
-    return so.Configure
+func (yc *yamlConfigure) GetConfigure() *Configure {
+    return yc.Configure
 }
+/*
+func (yc *yamlConfigure) Marshal(in interface{}) ([]byte, error) {
+    return
+}
+
+func (yc *yamlConfigure) Unmarshal(in []byte, out interface{}) int {
+    if err := yaml.Unmarshal(in, out); err != nil {
+        return Error
+    }
+
+    return Ok
+}
+*/
 
 func (yc *yamlConfigure) Parser(in []byte, out interface{}) int {
     if err := yaml.Unmarshal(in, out); err != nil {
-        fmt.Println(err)
-				    return Error
+        return Error
     }
 
     return Ok

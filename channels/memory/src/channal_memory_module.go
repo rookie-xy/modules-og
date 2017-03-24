@@ -10,8 +10,8 @@ import (
 )
 
 const (
-    MEMORY_MODULE = 0x0003
-    MEMORY_CONFIG = 0x00030000
+    MEMORY_MODULE = 0x686300000001
+    MEMORY_CONFIG = 0x000000016863
 )
 
 var memoryModule = String{ len("memory_module"), "memory_module" }
@@ -81,7 +81,7 @@ func memoryBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
         return Error
     }
 
-    if configure.Parse(cycle) == Error {
+    if configure.Materialized(cycle) == Error {
         return Error
     }
 
@@ -116,7 +116,7 @@ var channalMemoryModule = Module{
     CONTEXT_V1,
     unsafe.Pointer(channalMemoryContext),
     channalMemoryCommands,
-    CHANNAL_MODULE,
+    CHANNEL_MODULE,
     nil,
     nil,
 }

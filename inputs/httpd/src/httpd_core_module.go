@@ -15,8 +15,8 @@ import (
 )
 
 const (
-    LOCATION_MODULE = 0x0005
-    LOCATION_CONFIG = 0x00050000
+    LOCATION_MODULE = 0x6E6900000003
+    LOCATION_CONFIG = 0x000000036E69
 )
 
 type HttpdCore struct {

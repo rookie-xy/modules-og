@@ -10,8 +10,8 @@ import (
 )
 
 const (
-    STDOUT_MODULE = 0x0004
-    STDOUT_CONFIG = 0X00040000
+    STDOUT_MODULE = 0x756F00000001
+    STDOUT_CONFIG = 0X00000001756F
 )
 
 var stdoutModule = String{ len("stdout_module"), "stdout_module" }
@@ -81,7 +81,7 @@ func stdoutBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
 				    return Error
     }
 
-    if configure.Parse(cycle) == Error {
+    if configure.Materialized(cycle) == Error {
 				    return Error
     }
 

@@ -11,7 +11,7 @@ import (
 )
 
 const (
-    STDIN_MODULE = 0x0002
+    STDIN_MODULE = 0x6E6900000001
     STDIN_CONFIG = 0x00020000
 )
 

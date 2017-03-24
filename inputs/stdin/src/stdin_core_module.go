@@ -7,6 +7,7 @@ package stdin
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
+"fmt"
 )
 
 type StdinCore struct {
@@ -47,6 +48,8 @@ func coreStdinContextInit(cycle *Cycle, context *unsafe.Pointer) string {
         log.Error("coreStdinContextInit error")
         return "0"
     }
+
+    fmt.Println(this.channal)
 
     return "0"
 }
