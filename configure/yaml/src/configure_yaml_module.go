@@ -59,7 +59,7 @@ func initYamlConfigureModule(cycle *Cycle) int {
 
     configure := cycle.GetConfigure()
     if configure == nil {
-        configure = NewConfigure(log)
+        configure = NewConfigure(cycle)
         if configure == nil {
             return Error
         }

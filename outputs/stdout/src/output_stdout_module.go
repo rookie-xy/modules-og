@@ -35,6 +35,9 @@ var outputStdoutCommands = []Command{
 }
 
 func stdoutBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
+    cycle.Configure.Block(STDOUT_MODULE, STDOUT_CONFIG)
+    return Ok
+    /*
     if cycle == nil {
         return Error
     }
@@ -109,6 +112,7 @@ func stdoutBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
     }
 
     return Ok
+    */
 }
 
 var outputStdoutModule = Module{

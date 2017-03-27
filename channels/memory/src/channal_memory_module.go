@@ -35,6 +35,9 @@ var channalMemoryCommands = []Command{
 }
 
 func memoryBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
+    cycle.Configure.Block(MEMORY_MODULE, MEMORY_CONFIG)
+    return Ok
+    /*
     if cycle == nil {
         return Error
     }
@@ -109,6 +112,7 @@ func memoryBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
     }
 
     return Ok
+    */
 }
 
 var channalMemoryModule = Module{
