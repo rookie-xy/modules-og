@@ -98,5 +98,5 @@ func coreStdoutMain(cycle *Cycle) int {
 }
 
 func init() {
-    Modules = append(Modules, &coreStdoutModule)
+    Modules = Load(Modules, &coreStdoutModule)
 }

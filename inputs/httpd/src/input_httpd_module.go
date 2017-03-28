@@ -7,11 +7,12 @@ package httpd
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
+    . "github.com/rookie-xy/worker/modules"
 )
 
 const (
-    HTTPD_MODULE = 0x6E6900000002
-    HTTPD_CONFIG = 0x000000026E69
+    HTTPD_MODULE = 0x000000000002
+    HTTPD_CONFIG = 0x000000020000
 )
 
 var httpdModule = String{ len("httpd_module"), "httpd_module" }
@@ -35,7 +36,7 @@ var inputHttpdCommands = []Command{
 }
 
 func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(HTTPD_MODULE, HTTPD_CONFIG)
+    cycle.Configure.Block(INPUT_MODULE|HTTPD_MODULE, HTTPD_CONFIG)
     return Ok
 }
 

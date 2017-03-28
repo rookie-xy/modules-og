@@ -81,11 +81,11 @@ var httpdLocationModule = Module{
     CONTEXT_V1,
     unsafe.Pointer(httpdLocationContext),
     httpdLocationCommands,
-    LOCATION_MODULE,
+    HTTPD_MODULE|LOCATION_MODULE,
     nil,
     nil,
 }
 
 func init() {
-    Modules = append(Modules, &httpdLocationModule)
+    Modules = Load(Modules, &httpdLocationModule)
 }

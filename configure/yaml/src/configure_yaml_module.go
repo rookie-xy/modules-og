@@ -94,5 +94,5 @@ var YamlConfigureModule = Module{
 }
 
 func init() {
-    Modules = append(Modules, &YamlConfigureModule)
+    Modules = Load(Modules, &YamlConfigureModule)
 }

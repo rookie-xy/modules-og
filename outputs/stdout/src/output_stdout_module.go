@@ -7,6 +7,7 @@ package stdout
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
+    . "github.com/rookie-xy/worker/modules"
 )
 
 const (
@@ -37,82 +38,6 @@ var outputStdoutCommands = []Command{
 func stdoutBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
     cycle.Configure.Block(STDOUT_MODULE, STDOUT_CONFIG)
     return Ok
-    /*
-    if cycle == nil {
-        return Error
-    }
-
-    for m := 0; Modules[m] != nil; m++ {
-        module := Modules[m]
-        if module.Type != STDOUT_MODULE {
-            continue
-        }
-
-        module.CtxIndex++
-    }
-
-    for m := 0; Modules[m] != nil; m++ {
-        module := Modules[m]
-        if module.Type != STDOUT_MODULE {
-            continue
-        }
-
-        context := (*Context)(unsafe.Pointer(module.Context))
-        if context == nil {
-            continue
-        }
-
-        if handle := context.Create; handle != nil {
-            this := handle(cycle)
-
-            if cycle.SetContext(module.Index, &this) == Error {
-                return Error
-            }
-        }
-    }
-
-    configure := cycle.GetConfigure()
-    if configure == nil {
-        return Error
-    }
-
-    if configure.SetModuleType(STDOUT_MODULE) == Error {
-				    return Error
-    }
-
-    if configure.SetCommandType(STDOUT_CONFIG) == Error {
-				    return Error
-    }
-
-    if configure.Materialized(cycle) == Error {
-				    return Error
-    }
-
-    for m := 0; Modules[m] != nil; m++ {
-        module := Modules[m]
-        if module.Type != STDOUT_MODULE {
-            continue
-        }
-
-        this := (*Context)(unsafe.Pointer(module.Context))
-        if this == nil {
-            continue
-        }
-
-        context := cycle.GetContext(module.Index)
-        if context == nil {
-            continue
-        }
-
-        if init := this.Init; init != nil {
-            if init(cycle, context) == "-1" {
-												    return Error
-            }
-        }
-    }
-
-    return Ok
-    */
 }
 
 var outputStdoutModule = Module{
@@ -126,5 +51,5 @@ var outputStdoutModule = Module{
 }
 
 func init() {
-   Modules = append(Modules, &outputStdoutModule)
+   Modules = Load(Modules, &outputStdoutModule)
 }

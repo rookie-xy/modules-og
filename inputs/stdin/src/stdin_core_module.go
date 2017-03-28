@@ -7,6 +7,7 @@ package stdin
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
+    . "github.com/rookie-xy/worker/modules"
 "fmt"
 )
 
@@ -84,7 +85,7 @@ var coreStdinModule = Module{
     CONTEXT_V1,
     unsafe.Pointer(coreStdinContext),
     coreStdinCommands,
-    STDIN_MODULE,
+    INPUT_MODULE|STDIN_MODULE,
     coreStdinInit,
     coreStdinMain,
 }
@@ -112,5 +113,5 @@ func coreStdinMain(cycle *Cycle) int {
 }
 
 func init() {
-    Modules = append(Modules, &coreStdinModule)
+    Modules = Load(Modules, &coreStdinModule)
 }

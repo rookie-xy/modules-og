@@ -7,6 +7,7 @@ package memory
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
+    . "github.com/rookie-xy/worker/modules"
 "fmt"
 )
 
@@ -84,7 +85,7 @@ var coreMemoryModule = Module{
     CONTEXT_V1,
     unsafe.Pointer(coreMemoryContext),
     coreMemoryCommands,
-    MEMORY_MODULE,
+    CHANNEL_MODULE|MEMORY_MODULE,
     coreMemoryInit,
     coreMemoryMain,
 }
@@ -98,5 +99,5 @@ func coreMemoryMain(cycle *Cycle) int {
 }
 
 func init() {
-    Modules = append(Modules, &coreMemoryModule)
+    Modules = Load(Modules, &coreMemoryModule)
 }

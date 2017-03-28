@@ -7,11 +7,12 @@ package memory
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
+    . "github.com/rookie-xy/worker/modules"
 )
 
 const (
-    MEMORY_MODULE = 0x686300000001
-    MEMORY_CONFIG = 0x000000016863
+    MEMORY_MODULE = 0x000000000001
+    MEMORY_CONFIG = 0x000000010000
 )
 
 var memoryModule = String{ len("memory_module"), "memory_module" }
@@ -35,84 +36,8 @@ var channalMemoryCommands = []Command{
 }
 
 func memoryBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(MEMORY_MODULE, MEMORY_CONFIG)
+    cycle.Configure.Block(CHANNEL_MODULE|MEMORY_MODULE, MEMORY_CONFIG)
     return Ok
-    /*
-    if cycle == nil {
-        return Error
-    }
-
-    for m := 0; Modules[m] != nil; m++ {
-        module := Modules[m]
-        if module.Type != MEMORY_MODULE {
-            continue
-        }
-
-        module.CtxIndex++
-    }
-
-    for m := 0; Modules[m] != nil; m++ {
-        module := Modules[m]
-        if module.Type != MEMORY_MODULE {
-            continue
-        }
-
-        context := (*Context)(unsafe.Pointer(module.Context))
-        if context == nil {
-            continue
-        }
-
-        if handle := context.Create; handle != nil {
-            this := handle(cycle)
-
-            if cycle.SetContext(module.Index, &this) == Error {
-                return Error
-            }
-        }
-    }
-
-    configure := cycle.GetConfigure()
-    if configure == nil {
-        return Error
-    }
-
-    if configure.SetModuleType(MEMORY_MODULE) == Error {
-        return Error
-    }
-
-    if configure.SetCommandType(MEMORY_CONFIG) == Error {
-        return Error
-    }
-
-    if configure.Materialized(cycle) == Error {
-        return Error
-    }
-
-    for m := 0; Modules[m] != nil; m++ {
-        module := Modules[m]
-        if module.Type != MEMORY_MODULE {
-            continue
-        }
-
-        this := (*Context)(unsafe.Pointer(module.Context))
-        if this == nil {
-            continue
-        }
-
-        context := cycle.GetContext(module.Index)
-        if context == nil {
-            continue
-        }
-
-        if init := this.Init; init != nil {
-            if init(cycle, context) == "-1" {
-                return Error
-            }
-        }
-    }
-
-    return Ok
-    */
 }
 
 var channalMemoryModule = Module{
@@ -126,5 +51,5 @@ var channalMemoryModule = Module{
 }
 
 func init() {
-    Modules = append(Modules, &channalMemoryModule)
+    Modules = Load(Modules, &channalMemoryModule)
 }
