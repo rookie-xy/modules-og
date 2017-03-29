@@ -81,7 +81,7 @@ var httpdLocationModule = Module{
     CONTEXT_V1,
     unsafe.Pointer(httpdLocationContext),
     httpdLocationCommands,
-    HTTPD_MODULE|LOCATION_MODULE,
+    LOCATION_MODULE,
     nil,
     nil,
 }

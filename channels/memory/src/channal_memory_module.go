@@ -11,8 +11,8 @@ import (
 )
 
 const (
-    MEMORY_MODULE = 0x000000000001
-    MEMORY_CONFIG = 0x000000010000
+    MEMORY_MODULE = CHANNEL_MODULE|0x01000000
+    MEMORY_CONFIG = 0x00000001
 )
 
 var memoryModule = String{ len("memory_module"), "memory_module" }
@@ -36,7 +36,7 @@ var channalMemoryCommands = []Command{
 }
 
 func memoryBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(CHANNEL_MODULE|MEMORY_MODULE, MEMORY_CONFIG)
+    cycle.Configure.Block(MEMORY_MODULE, MEMORY_CONFIG)
     return Ok
 }
 

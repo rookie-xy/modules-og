@@ -7,7 +7,6 @@ package memory
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
-    . "github.com/rookie-xy/worker/modules"
 "fmt"
 )
 
@@ -85,7 +84,7 @@ var coreMemoryModule = Module{
     CONTEXT_V1,
     unsafe.Pointer(coreMemoryContext),
     coreMemoryCommands,
-    CHANNEL_MODULE|MEMORY_MODULE,
+    MEMORY_MODULE,
     coreMemoryInit,
     coreMemoryMain,
 }

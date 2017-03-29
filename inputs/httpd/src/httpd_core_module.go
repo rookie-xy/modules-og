@@ -15,8 +15,8 @@ import (
 )
 
 const (
-    LOCATION_MODULE = 0x000000000003
-    LOCATION_CONFIG = 0x000000030000
+    LOCATION_MODULE = HTTPD_MODULE|0x00100000
+    LOCATION_CONFIG = 0x00000003
 )
 
 type HttpdCore struct {
@@ -101,7 +101,7 @@ var coreHttpdCommands = []Command{
 }
 
 func locationBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(HTTPD_MODULE|LOCATION_MODULE, LOCATION_CONFIG)
+    cycle.Configure.Block(LOCATION_MODULE, LOCATION_CONFIG)
     return Ok
 }
 

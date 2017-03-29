@@ -7,7 +7,6 @@ package stdin
 import (
       "unsafe"
     . "github.com/rookie-xy/worker/types"
-    . "github.com/rookie-xy/worker/modules"
 "fmt"
 )
 
@@ -85,7 +84,7 @@ var coreStdinModule = Module{
     CONTEXT_V1,
     unsafe.Pointer(coreStdinContext),
     coreStdinCommands,
-    INPUT_MODULE|STDIN_MODULE,
+    STDIN_MODULE,
     coreStdinInit,
     coreStdinMain,
 }
