@@ -15,7 +15,7 @@ type StdoutCore struct {
     *File
 
      status   bool
-     channal  string
+     channel  string
 }
 
 func NewStdoutCore() *StdoutCore {
@@ -36,7 +36,7 @@ func coreStdoutContextCreate(cycle *Cycle) unsafe.Pointer {
     }
 
     stdoutCore.status = false
-    stdoutCore.channal = "zhangyue"
+    stdoutCore.channel = "zhangyue"
 
     return unsafe.Pointer(stdoutCore)
 }
@@ -49,14 +49,14 @@ func coreStdoutContextInit(cycle *Cycle, context *unsafe.Pointer) string {
         return "0"
     }
 
-    fmt.Println(this.channal)
+    fmt.Println(this.channel)
 
     return "0"
 }
 
 var (
     coreStatus = String{ len("status"), "status" }
-    coreChannal = String{ len("channal"), "channal" }
+    coreChannel = String{ len("channel"), "channel" }
     coreStdout StdoutCore
 )
 
@@ -69,14 +69,40 @@ var coreStdoutCommands = []Command{
       unsafe.Offsetof(coreStdout.status),
       nil },
 
-    { coreChannal,
+    { coreChannel,
       STDOUT_CONFIG,
-      SetString,
+      SetStrings,
       0,
-      unsafe.Offsetof(coreStdout.channal),
+      unsafe.Offsetof(coreStdout.channel),
       nil },
 
     NilCommand,
+}
+
+func SetStrings(cycle *Cycle, command *Command, p *unsafe.Pointer) int {
+    fmt.Println("ddddddddddddddddddddddddddddddddd")
+    if cycle == nil || p == nil {
+        return Error
+    }
+
+    field := (*string)(unsafe.Pointer(uintptr(*p) + command.Offset))
+    if field == nil {
+        return Error
+    }
+
+    configure := cycle.GetConfigure()
+    if configure == nil {
+        return Error
+    }
+
+    strings := configure.GetValue()
+    if strings == nil {
+        return Error
+    }
+
+    *field = strings.(string)
+
+    return Ok
 }
 
 var coreStdoutModule = Module{

@@ -12,7 +12,7 @@ import (
 
 const (
     MEMORY_MODULE = CHANNEL_MODULE|0x01000000
-    MEMORY_CONFIG = 0x00000001
+    MEMORY_CONFIG = MEMORY_MODULE|0x00000001
 )
 
 var memoryModule = String{ len("memory_module"), "memory_module" }

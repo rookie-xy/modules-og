@@ -11,8 +11,8 @@ import (
 )
 
 const (
-    STDOUT_MODULE = INPUT_MODULE|0x01000000
-    STDOUT_CONFIG = 0X00000001756F
+    STDOUT_MODULE = OUTPUT_MODULE|0x01000000
+    STDOUT_CONFIG = STDOUT_MODULE|0X00000001
 )
 
 var stdoutModule = String{ len("stdout_module"), "stdout_module" }

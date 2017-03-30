@@ -56,7 +56,7 @@ func coreStdinContextInit(cycle *Cycle, context *unsafe.Pointer) string {
 
 var (
     status = String{ len("status"), "status" }
-    channal = String{ len("channal"), "channal" }
+    channal = String{ len("channel"), "channel" }
     coreStdin StdinCore
 )
 
