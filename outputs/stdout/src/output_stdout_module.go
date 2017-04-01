@@ -12,7 +12,7 @@ import (
 
 const (
     STDOUT_MODULE = OUTPUT_MODULE|0x01000000
-    STDOUT_CONFIG = STDOUT_MODULE|0X00000001
+    STDOUT_CONFIG = 0x00040000
 )
 
 var stdoutModule = String{ len("stdout_module"), "stdout_module" }
@@ -51,5 +51,5 @@ var outputStdoutModule = Module{
 }
 
 func init() {
-   Modules = Load(Modules, &outputStdoutModule)
+    Modules = Load(Modules, &outputStdoutModule)
 }

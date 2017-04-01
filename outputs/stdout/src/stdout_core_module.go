@@ -71,38 +71,12 @@ var coreStdoutCommands = []Command{
 
     { coreChannel,
       STDOUT_CONFIG,
-      SetStrings,
+      SetString,
       0,
       unsafe.Offsetof(coreStdout.channel),
       nil },
 
     NilCommand,
-}
-
-func SetStrings(cycle *Cycle, command *Command, p *unsafe.Pointer) int {
-    fmt.Println("ddddddddddddddddddddddddddddddddd")
-    if cycle == nil || p == nil {
-        return Error
-    }
-
-    field := (*string)(unsafe.Pointer(uintptr(*p) + command.Offset))
-    if field == nil {
-        return Error
-    }
-
-    configure := cycle.GetConfigure()
-    if configure == nil {
-        return Error
-    }
-
-    strings := configure.GetValue()
-    if strings == nil {
-        return Error
-    }
-
-    *field = strings.(string)
-
-    return Ok
 }
 
 var coreStdoutModule = Module{

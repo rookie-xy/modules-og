@@ -12,7 +12,7 @@ import (
 
 const (
     STDIN_MODULE = INPUT_MODULE|0x01000000
-    STDIN_CONFIG = STDIN_MODULE|0x00000001
+    STDIN_CONFIG = 0x00030000
 )
 
 var stdinModule = String{ len("stdin_module"), "stdin_module" }

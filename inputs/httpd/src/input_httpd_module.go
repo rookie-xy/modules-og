@@ -12,7 +12,7 @@ import (
 
 const (
     HTTPD_MODULE = INPUT_MODULE|0x02000000
-    HTTPD_CONFIG = HTTPD_MODULE|0x00000001
+    HTTPD_CONFIG = 0x00030000
 )
 
 var httpdModule = String{ len("httpd_module"), "httpd_module" }
