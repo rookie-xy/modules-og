@@ -12,7 +12,7 @@ import (
 
 const (
     STDOUT_MODULE = OUTPUT_MODULE|0x01000000
-    STDOUT_CONFIG = 0x00040000
+    STDOUT_CONFIG = USER_CONFIG|CONFIG_ARRAY
 )
 
 var stdoutModule = String{ len("stdout_module"), "stdout_module" }
@@ -26,7 +26,7 @@ var stdout = String{ len("stdout"), "stdout" }
 var outputStdoutCommands = []Command{
 
     { stdout,
-      USER_CONFIG|CONFIG_BLOCK,
+      STDOUT_CONFIG,
       stdoutBlock,
       0,
       0,
@@ -36,7 +36,7 @@ var outputStdoutCommands = []Command{
 }
 
 func stdoutBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(STDOUT_MODULE, STDOUT_CONFIG)
+    cycle.Configure.Block(STDOUT_MODULE, STDOUT_CONFIG|CONFIG_VALUE)
     return Ok
 }
 

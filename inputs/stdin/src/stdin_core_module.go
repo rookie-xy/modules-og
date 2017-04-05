@@ -15,7 +15,7 @@ type StdinCore struct {
     *File
 
      status   bool
-     channal  string
+     channel  string
 }
 
 func NewStdinCore() *StdinCore {
@@ -36,7 +36,7 @@ func coreStdinContextCreate(cycle *Cycle) unsafe.Pointer {
     }
 
     stdinCore.status = false
-    stdinCore.channal = "mengshi"
+    stdinCore.channel = "mengshi"
 
     return unsafe.Pointer(stdinCore)
 }
@@ -49,31 +49,31 @@ func coreStdinContextInit(cycle *Cycle, context *unsafe.Pointer) string {
         return "0"
     }
 
-    fmt.Println(this.channal)
+    fmt.Println(this.channel)
 
     return "0"
 }
 
 var (
     status = String{ len("status"), "status" }
-    channal = String{ len("channel"), "channel" }
+    channel = String{ len("channel"), "channel" }
     coreStdin StdinCore
 )
 
 var coreStdinCommands = []Command{
 
     { status,
-      STDIN_CONFIG,
+      STDIN_CONFIG|CONFIG_VALUE,
       SetFlag,
       0,
       unsafe.Offsetof(coreStdin.status),
       nil },
 
-    { channal,
-      STDIN_CONFIG,
+    { channel,
+      STDIN_CONFIG|CONFIG_VALUE,
       SetString,
       0,
-      unsafe.Offsetof(coreStdin.channal),
+      unsafe.Offsetof(coreStdin.channel),
       nil },
 
     NilCommand,
@@ -101,7 +101,7 @@ func coreStdinInit(cycle *Cycle) int {
         return Error
     }
 
-    fmt.Println(this.channal)
+    fmt.Println(this.channel)
     */
 
     return Ok

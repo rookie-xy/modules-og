@@ -12,7 +12,7 @@ import (
 
 const (
     STDIN_MODULE = INPUT_MODULE|0x01000000
-    STDIN_CONFIG = 0x00030000
+    STDIN_CONFIG = USER_CONFIG|CONFIG_ARRAY
 )
 
 var stdinModule = String{ len("stdin_module"), "stdin_module" }
@@ -26,7 +26,7 @@ var stdin = String{ len("stdin"), "stdin" }
 var inputStdinCommands = []Command{
 
     { stdin,
-      USER_CONFIG|CONFIG_BLOCK,
+      STDIN_CONFIG,
       stdinBlock,
       0,
       0,
@@ -36,7 +36,7 @@ var inputStdinCommands = []Command{
 }
 
 func stdinBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(STDIN_MODULE, STDIN_CONFIG)
+    cycle.Configure.Block(STDIN_MODULE, STDIN_CONFIG|CONFIG_VALUE)
     return Ok
 }
 
