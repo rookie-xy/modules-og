@@ -49,7 +49,7 @@ func (o *simpleOption) Parser() int {
                 return Error
             }
 
-            // file://path=/home/
+            // file://resource=
             o.SetItem("configure", "file://resource=" + argv[i + 1])
             i++
             break
@@ -59,7 +59,7 @@ func (o *simpleOption) Parser() int {
 	               return Error
 	           }
 
-            // file://path=/home/
+            // zookeeper://resource=
             o.SetItem("configure", "zookeeper://resource=" + argv[i + 1])
             i++
             break

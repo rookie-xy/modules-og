@@ -77,14 +77,14 @@ var (
 var coreMlogCommands = []Command{
 
     { level,
-      MLOG_CONFIG,
+      MLOG_CONFIG|CONFIG_VALUE,
       SetString,
       0,
       unsafe.Offsetof(coreMlog.level),
       nil },
 
     { path,
-      MLOG_CONFIG,
+      MLOG_CONFIG|CONFIG_VALUE,
       SetString,
       0,
       unsafe.Offsetof(coreMlog.path),
@@ -114,5 +114,5 @@ func coreMlogMain(cycle *Cycle) int {
 }
 
 func init() {
-    Modules = append(Modules, &coreMlogModule)
+    Modules = Load(Modules, &coreMlogModule)
 }

@@ -11,8 +11,8 @@ import (
 )
 
 const (
-    MULTILINE_MODULE = 0x0007
-    MULTILINE_CONFIG = 0x00070000
+    MULTILINE_MODULE = CODEC_MODULE|0x01000000
+    MULTILINE_CONFIG = USER_CONFIG|CONFIG_MAP
 )
 
 var multilineModule = String{ len("multiline_module"), "multiline_module" }
@@ -26,7 +26,7 @@ var	multiline = String{ len("multiline"), "multiline" }
 var codecMultilineCommands = []Command{
 
     { multiline,
-      USER_CONFIG|CONFIG_BLOCK,
+      MULTILINE_CONFIG,
       multilineBlock,
       0,
       0,
@@ -36,7 +36,7 @@ var codecMultilineCommands = []Command{
 }
 
 func multilineBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(CODEC_MODULE|MULTILINE_MODULE, MULTILINE_CONFIG)
+    cycle.Configure.Block(MULTILINE_MODULE, MULTILINE_CONFIG|CONFIG_VALUE)
     return Ok
 }
 

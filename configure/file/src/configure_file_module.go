@@ -6,15 +6,15 @@ package file
 
 import (
     . "github.com/rookie-xy/worker/types"
+    "strings"
 )
 
 type fileConfigure struct {
     *Configure
-     Content
 }
 
 func NewFileConfigure(configure *Configure) *fileConfigure {
-    return &fileConfigure{ configure, nil }
+    return &fileConfigure{ configure }
 }
 
 func (fc *fileConfigure) SetConfigure(configure *Configure) int {
@@ -42,9 +42,42 @@ func (fc *fileConfigure) Get() int {
 func initFileConfigureModule(cycle *Cycle) int {
     log := cycle.Log
 
-    cycle.Option.GetItem()
-
+    option := cycle.GetOption()
     configure := cycle.GetConfigure()
+    if option == nil || configure == nil {
+        return Error
+    }
+
+    item := option.GetItem("configure")
+    if item == nil {
+        return Error
+    }
+
+    file := item.(string)
+
+    fileType := file[0 : strings.Index(file, ":")]
+    if fileType == "" {
+        return Error
+    }
+
+    if fileType != "file" {
+        return Ok
+    }
+
+    if configure.SetFileType(fileType) == Error {
+        return Error
+    }
+
+    fileName := file[strings.LastIndex(file, "/") + 1 : ]
+    if fileName == "" {
+        return Error
+    }
+
+    if configure.SetFileName(fileName) == Error {
+        return Error
+    }
+
+    /*
     if configure == nil {
         configure = NewConfigure(log)
         if configure == nil {
@@ -55,6 +88,7 @@ func initFileConfigureModule(cycle *Cycle) int {
             return Error
         }
     }
+    */
 
     fileConfigure := NewFileConfigure(configure)
     if fileConfigure == nil {
@@ -62,7 +96,7 @@ func initFileConfigureModule(cycle *Cycle) int {
         return Error
     }
 
-    if configure.Set(fileConfigure) == Error {
+    if configure.SetContent(fileConfigure) == Error {
         log.Error("set configure interface error")
         return Error
     }
@@ -81,5 +115,5 @@ var FileConfigureModule = Module{
 }
 
 func init() {
-    Modules = append(Modules, &FileConfigureModule)
+    Modules = Load(Modules, &FileConfigureModule)
 }

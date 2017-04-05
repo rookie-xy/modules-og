@@ -12,7 +12,7 @@ import (
 
 const (
     MLOG_MODULE = LOG_MODULE|0x01000000
-    MLOG_CONFIG = 0x00020000
+    MLOG_CONFIG = USER_CONFIG|CONFIG_ARRAY
 )
 
 var mlogModule = String{ len("mlog_module"), "mlog_module" }
@@ -26,7 +26,7 @@ var mlog = String{ len("mlog"), "mlog" }
 var logMlogCommands = []Command{
 
     { mlog,
-      USER_CONFIG|CONFIG_BLOCK,
+      MLOG_CONFIG,
       mlogBlock,
       0,
       0,
@@ -36,7 +36,7 @@ var logMlogCommands = []Command{
 }
 
 func mlogBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(MLOG_MODULE, MLOG_CONFIG)
+    cycle.Configure.Block(MLOG_MODULE, MLOG_CONFIG|CONFIG_VALUE)
     return Ok
 }
 
@@ -51,5 +51,5 @@ var logMlogModule = Module{
 }
 
 func init() {
-    Modules = append(Modules, &logMlogModule)
+    Modules = Load(Modules, &logMlogModule)
 }

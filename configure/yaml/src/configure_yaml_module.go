@@ -11,12 +11,10 @@ import (
 
 type yamlConfigure struct {
     *Configure
-     configure ConfigureIf
-//     Parser
 }
 
 func NewYamlConfigure(configure *Configure) *yamlConfigure {
-    return &yamlConfigure{ configure, nil }
+    return &yamlConfigure{ configure }
 }
 
 func (yc *yamlConfigure) SetConfigure(configure *Configure) int {
@@ -32,21 +30,12 @@ func (yc *yamlConfigure) SetConfigure(configure *Configure) int {
 func (yc *yamlConfigure) GetConfigure() *Configure {
     return yc.Configure
 }
-/*
+
 func (yc *yamlConfigure) Marshal(in interface{}) ([]byte, error) {
-    return
+    return nil, nil
 }
 
 func (yc *yamlConfigure) Unmarshal(in []byte, out interface{}) int {
-    if err := yaml.Unmarshal(in, out); err != nil {
-        return Error
-    }
-
-    return Ok
-}
-*/
-
-func (yc *yamlConfigure) Parser(in []byte, out interface{}) int {
     if err := yaml.Unmarshal(in, out); err != nil {
         return Error
     }
@@ -75,7 +64,7 @@ func initYamlConfigureModule(cycle *Cycle) int {
         return Error
     }
 
-    if configure.Set(yamlConfigure) == Error {
+    if configure.SetParser(yamlConfigure) == Error {
         log.Error("set configure interface error")
         return Error
     }

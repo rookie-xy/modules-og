@@ -12,8 +12,8 @@ import (
 )
 
 const (
-    GROK_MODULE = 0x0007
-    GROK_CONFIG = 0x00070000
+    GROK_MODULE = FILTER_MODULE|0x01000000
+    GROK_CONFIG = USER_CONFIG|CONFIG_ARRAY
 )
 
 var grokModule = String{ len("grok_module"), "grok_module" }
@@ -27,7 +27,7 @@ var	grok = String{ len("grok"), "grok" }
 var filterGrokCommands = []Command{
 
     { grok,
-      USER_CONFIG|CONFIG_BLOCK,
+      GROK_CONFIG,
       grokBlock,
       0,
       0,
@@ -37,7 +37,7 @@ var filterGrokCommands = []Command{
 }
 
 func grokBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(FILTER_MODULE|GROK_MODULE, GROK_CONFIG)
+    cycle.Configure.Block(GROK_MODULE, GROK_CONFIG|CONFIG_VALUE)
     return Ok
 }
 
@@ -52,5 +52,5 @@ var filterGrokModule = Module{
 }
 
 func init() {
-    Modules = append(Modules, &filterGrokModule)
+    Modules = Load(Modules, &filterGrokModule)
 }
