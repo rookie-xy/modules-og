@@ -63,14 +63,14 @@ var (
 var coreMemoryCommands = []Command{
 
     { name,
-      MEMORY_CONFIG,
+      MEMORY_CONFIG|CONFIG_VALUE,
       SetString,
       0,
       unsafe.Offsetof(coreMemory.name),
       nil },
 
     { size,
-      MEMORY_CONFIG,
+      MEMORY_CONFIG|CONFIG_VALUE,
       SetNumber,
       0,
       unsafe.Offsetof(coreMemory.size),

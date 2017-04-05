@@ -60,14 +60,14 @@ var (
 var httpdLocationCommands = []Command{
 
     { document,
-      LOCATION_CONFIG,
+      LOCATION_CONFIG|CONFIG_VALUE,
       SetString,
       0,
       unsafe.Offsetof(httpdLocation.document),
       nil },
 
     { bufsize,
-      LOCATION_CONFIG,
+      LOCATION_CONFIG|CONFIG_VALUE,
       SetNumber,
       0,
       unsafe.Offsetof(httpdLocation.bufsize),

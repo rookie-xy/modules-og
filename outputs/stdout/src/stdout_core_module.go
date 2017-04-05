@@ -71,7 +71,7 @@ var coreStdoutCommands = []Command{
 
     { coreChannel,
       STDOUT_CONFIG|CONFIG_VALUE,
-      SetStrings,
+      SetString,
       0,
       unsafe.Offsetof(coreStdout.channel),
       nil },

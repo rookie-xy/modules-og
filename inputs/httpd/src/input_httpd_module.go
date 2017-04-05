@@ -12,7 +12,7 @@ import (
 
 const (
     HTTPD_MODULE = INPUT_MODULE|0x02000000
-    HTTPD_CONFIG = 0x00030000
+    HTTPD_CONFIG = USER_CONFIG|CONFIG_ARRAY
 )
 
 var httpdModule = String{ len("httpd_module"), "httpd_module" }
@@ -26,7 +26,7 @@ var httpd = String{ len("httpd"), "httpd" }
 var inputHttpdCommands = []Command{
 
     { httpd,
-      USER_CONFIG|CONFIG_BLOCK,
+      HTTPD_CONFIG,
       httpdBlock,
       0,
       0,
@@ -36,7 +36,7 @@ var inputHttpdCommands = []Command{
 }
 
 func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(HTTPD_MODULE, HTTPD_CONFIG)
+    cycle.Configure.Block(HTTPD_MODULE, HTTPD_CONFIG|CONFIG_VALUE)
     return Ok
 }
 

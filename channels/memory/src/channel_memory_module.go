@@ -12,21 +12,21 @@ import (
 
 const (
     MEMORY_MODULE = CHANNEL_MODULE|0x01000000
-    MEMORY_CONFIG = 0x00020000
+    MEMORY_CONFIG = USER_CONFIG|CONFIG_ARRAY
 )
 
 var memoryModule = String{ len("memory_module"), "memory_module" }
-var channalMemoryContext = &Context{
+var channelMemoryContext = &Context{
     memoryModule,
     nil,
     nil,
 }
 
 var	memory = String{ len("memory"), "memory" }
-var channalMemoryCommands = []Command{
+var channelMemoryCommands = []Command{
 
     { memory,
-      USER_CONFIG|CONFIG_BLOCK,
+      MEMORY_CONFIG,
       memoryBlock,
       0,
       0,
@@ -36,20 +36,20 @@ var channalMemoryCommands = []Command{
 }
 
 func memoryBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(MEMORY_MODULE, MEMORY_CONFIG)
+    cycle.Configure.Block(MEMORY_MODULE, MEMORY_CONFIG|CONFIG_VALUE)
     return Ok
 }
 
-var channalMemoryModule = Module{
+var channelMemoryModule = Module{
     MODULE_V1,
     CONTEXT_V1,
-    unsafe.Pointer(channalMemoryContext),
-    channalMemoryCommands,
+    unsafe.Pointer(channelMemoryContext),
+    channelMemoryCommands,
     CHANNEL_MODULE,
     nil,
     nil,
 }
 
 func init() {
-    Modules = Load(Modules, &channalMemoryModule)
+    Modules = Load(Modules, &channelMemoryModule)
 }

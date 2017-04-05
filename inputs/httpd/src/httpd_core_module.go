@@ -16,7 +16,7 @@ import (
 
 const (
     LOCATION_MODULE = HTTPD_MODULE|0x00100000
-    LOCATION_CONFIG = 0x00030000
+    LOCATION_CONFIG = HTTPD_CONFIG|CONFIG_MAP
 )
 
 type HttpdCore struct {
@@ -77,21 +77,21 @@ var (
 var coreHttpdCommands = []Command{
 
     { listen,
-      HTTPD_CONFIG,
+      HTTPD_CONFIG|CONFIG_VALUE,
       SetString,
       0,
       unsafe.Offsetof(coreHttpd.listen),
       nil },
 
     { timeout,
-      HTTPD_CONFIG,
+      HTTPD_CONFIG|CONFIG_VALUE,
       SetNumber,
       0,
       unsafe.Offsetof(coreHttpd.timeout),
       nil },
 
     { location,
-      HTTPD_CONFIG|CONFIG_BLOCK,
+      HTTPD_CONFIG|CONFIG_VALUE,
       locationBlock,
       0,
       unsafe.Offsetof(coreHttpd.location),
@@ -101,7 +101,7 @@ var coreHttpdCommands = []Command{
 }
 
 func locationBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(LOCATION_MODULE, LOCATION_CONFIG)
+    cycle.Configure.Block(LOCATION_MODULE, LOCATION_CONFIG|CONFIG_VALUE)
     return Ok
 }
 
