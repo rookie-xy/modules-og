@@ -79,7 +79,7 @@ func (o *simpleOption) Parser() int {
     return Ok
 }
 
-func initSimpleOptionModule(cycle *Cycle) int {
+func simpleOptionInit(cycle *Cycle) int {
     option := cycle.GetOption()
     if option == nil {
         return Error
@@ -98,6 +98,10 @@ func initSimpleOptionModule(cycle *Cycle) int {
         return Error
     }
 
+    if option.Materialized() == Error {
+        return Error
+    }
+
     return Ok
 }
 
@@ -107,7 +111,7 @@ var SimpleOptionModule = Module{
     nil,
     nil,
     SYSTEM_MODULE,
-    initSimpleOptionModule,
+    simpleOptionInit,
     nil,
 }
 
