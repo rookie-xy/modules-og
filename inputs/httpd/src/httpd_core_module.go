@@ -21,7 +21,7 @@ const (
 
 type HttpdCore struct {
     *Cycle
-    *File
+//    *File
 
      listen    string
      timeout   int

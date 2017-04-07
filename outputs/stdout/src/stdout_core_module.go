@@ -12,7 +12,7 @@ import (
 
 type StdoutCore struct {
     *Cycle
-    *File
+    *AbstractFile
 
      status   bool
      channel  string

@@ -7,7 +7,6 @@ package file
 import (
     . "github.com/rookie-xy/worker/types"
     "strings"
-    "fmt"
 )
 
 type fileConfigure struct {
@@ -70,22 +69,19 @@ func (fc *fileConfigure) GetFileName() string {
 }
 
 func (fc *fileConfigure) Set() int {
-    log := fc.Log
-
-    file := fc.File
-    if file == nil {
-        file = NewFile(fc.Log)
+    if fc.AbstractFile == nil {
+        fc.Error("file configure set error")
+        return Error
     }
 
     flag := false
-    if file.Read() == Error {
-        fmt.Println("configure read file error")
-        //log.Error("configure read file error")
+    if fc.Reader() == Error {
+        fc.Error("configure read file error")
         flag = true
     }
 
-    if file.Close() == Error {
-        log.Warn("file close error: %d\n", 10)
+    if fc.Closer() == Error {
+        fc.Warn("file close error: %d\n", 10)
         return Error
     }
 
@@ -97,34 +93,24 @@ func (fc *fileConfigure) Set() int {
 }
 
 func (fc *fileConfigure) Get() int {
-    log := fc.Log
-/*
-    file := fc.File.Get()
-    if file == nil {
-        file = NewFile(fc.Log)
+    if fc.AbstractFile == nil {
+        fc.AbstractFile = NewAbstractFile(fc.Log)
     }
-    */
-
-    file := NewFile(fc.Log)
 
     resource := fc.GetResource()
     if resource == "" {
         return Error
     }
 
-    if file.Open(resource) == Error {
-        log.Error("configure open file error")
+    if fc.Open(resource) == Error {
+        fc.Error("configure open file error")
         return Error
     }
-
-    fc.File = file
 
     return Ok
 }
 
 func fileConfigureInit(cycle *Cycle) int {
-    log := cycle.Log
-
     option := cycle.GetOption()
     if option == nil {
         return Error
@@ -132,7 +118,6 @@ func fileConfigureInit(cycle *Cycle) int {
 
     item := option.GetItem("configure")
     if item == nil {
-        fmt.Println("item is null")
         return Error
     }
 
@@ -144,7 +129,7 @@ func fileConfigureInit(cycle *Cycle) int {
     }
 
     if fileType != "file" {
-        return Again
+        return Ignore
     }
 
     configure := cycle.GetConfigure()
@@ -156,42 +141,36 @@ func fileConfigureInit(cycle *Cycle) int {
 
     fileConfigure := NewFileConfigure(configure)
     if fileConfigure == nil {
-        log.Error("new file configure error")
         return Error
     }
 
-    if fileConfigure.SetFileType(fileType) == Error {
+    if fileConfigure.SetName(fileType) == Error {
         return Error
     }
 
     fileName := file[strings.LastIndex(file, "/") + 1 : ]
     if fileName == "" {
-        fmt.Println("filename")
         return Error
     }
 
     if fileConfigure.SetFileName(fileName) == Error {
-        fmt.Println("set file name")
         return Error
     }
 
     resource := file[strings.Index(file, "=") + 1 : ]
     if resource == "" {
-        fmt.Println("resource")
         return Error
     }
 
     if fileConfigure.SetResource(resource) == Error {
-        fmt.Println("SET RESOURCE")
         return Error
     }
 
     if cycle.SetConfigure(configure) == Error {
-        fmt.Println("set configure")
         return Error
     }
 
-    if configure.SetContent(fileConfigure) == Error {
+    if configure.SetHandle(fileConfigure) == Error {
         return Error
     }
 
@@ -205,7 +184,7 @@ func fileConfigureMain(cycle *Cycle) int {
         return flag
     }
 
-    content := configure.GetContent()
+    content := configure.GetHandle()
     if content == nil {
         return flag
     }
@@ -219,7 +198,6 @@ func fileConfigureMain(cycle *Cycle) int {
     }
 
     if flag == Error {
-        fmt.Println("NNNNNNNNNNNNNNNNN")
         configure.SetNotice(Ok)
     }
 

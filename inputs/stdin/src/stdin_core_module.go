@@ -12,7 +12,7 @@ import (
 
 type StdinCore struct {
     *Cycle
-    *File
+    *AbstractFile
 
      status   bool
      channel  string

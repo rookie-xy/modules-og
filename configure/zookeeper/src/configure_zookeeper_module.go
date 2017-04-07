@@ -6,15 +6,16 @@ package zookeeper
 
 import (
     . "github.com/rookie-xy/worker/types"
+    "fmt"
+    "strings"
 )
 
 type zookeeperConfigure struct {
     *Configure
-     Content
 }
 
 func NewZookeeperConfigure(configure *Configure) *zookeeperConfigure {
-    return &zookeeperConfigure{ configure, nil }
+    return &zookeeperConfigure{ configure }
 }
 
 func (zkc *zookeeperConfigure) SetConfigure(configure *Configure) int {
@@ -39,32 +40,35 @@ func (zkc *zookeeperConfigure) Get() int {
     return Ok
 }
 
-func initZookeeperConfigureModule(cycle *Cycle) int {
-    log := cycle.Log
+func zookeeperConfigureInit(cycle *Cycle) int {
+    //log := cycle.Log
 
-    configure := cycle.GetConfigure()
-    if configure == nil {
-        configure = NewConfigure(log)
-        if configure == nil {
-            return Error
-        }
-
-        if cycle.SetConfigure(configure) == Error {
-            return Error
-        }
-    }
-
-    zookeeperConfigure := NewZookeeperConfigure(configure)
-    if zookeeperConfigure == nil {
-        log.Error("new zookeeper configure error")
+    option := cycle.GetOption()
+    if option == nil {
         return Error
     }
 
-    if configure.Set(zookeeperConfigure) == Error {
-        log.Error("set configure interface error")
+    item := option.GetItem("configure")
+    if item == nil {
+        fmt.Println("item is null")
         return Error
     }
 
+    file := item.(string)
+
+    fileType := file[0 : strings.Index(file, ":")]
+    if fileType == "" {
+        return Error
+    }
+
+    if fileType != "zookeeper" {
+        return Ignore
+    }
+
+    return Ok
+}
+
+func zookeeperConfigureMain(cycle *Cycle) int {
     return Ok
 }
 
@@ -74,10 +78,10 @@ var ZookeeperConfigureModule = Module{
     nil,
     nil,
     SYSTEM_MODULE,
-    initZookeeperConfigureModule,
-    nil,
+    zookeeperConfigureInit,
+    zookeeperConfigureMain,
 }
 
 func init() {
-    Modules = append(Modules, &ZookeeperConfigureModule)
+    Modules = Load(Modules, &ZookeeperConfigureModule)
 }
