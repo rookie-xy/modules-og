@@ -5,12 +5,19 @@
 package file
 
 import (
+      "strings"
+      "github.com/fsnotify/fsnotify"
+
     . "github.com/rookie-xy/worker/types"
-    "strings"
+
+    "unsafe"
+    "log"
 )
 
 type fileConfigure struct {
     *Configure
+
+     watcher     *fsnotify.Watcher
 
      resource     string
      fileName     string
@@ -110,6 +117,10 @@ func (fc *fileConfigure) Get() int {
     return Ok
 }
 
+func (fc *fileConfigure) GetType() unsafe.Pointer {
+    return unsafe.Pointer(fc)
+}
+
 func fileConfigureInit(cycle *Cycle) int {
     option := cycle.GetOption()
     if option == nil {
@@ -144,6 +155,13 @@ func fileConfigureInit(cycle *Cycle) int {
         return Error
     }
 
+    if watcher, error := fsnotify.NewWatcher(); error != nil {
+        //fileConfigure.Error(error)
+        return Error
+    } else {
+        fileConfigure.watcher = watcher
+    }
+
     if fileConfigure.SetName(fileType) == Error {
         return Error
     }
@@ -163,6 +181,10 @@ func fileConfigureInit(cycle *Cycle) int {
     }
 
     if fileConfigure.SetResource(resource) == Error {
+        return Error
+    }
+
+    if error := fileConfigure.watcher.Add(resource); error != nil {
         return Error
     }
 
@@ -199,6 +221,27 @@ func fileConfigureMain(cycle *Cycle) int {
 
     if flag == Error {
         configure.SetNotice(Ok)
+    }
+
+    fc := (*fileConfigure)(unsafe.Pointer(content.GetType()))
+    if fc == nil {
+        return Error
+    }
+
+    defer fc.watcher.Close()
+
+    for {
+        select {
+
+        case event := <-fc.watcher.Events:
+            log.Println("event:", event)
+            if event.Op & fsnotify.Write == fsnotify.Write {
+                log.Println("modified file:", event.Name)
+            }
+
+        case err := <-fc.watcher.Errors:
+            log.Println("error:", err)
+        }
     }
 
     return Ok
