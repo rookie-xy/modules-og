@@ -219,8 +219,11 @@ func fileConfigureMain(cycle *Cycle) int {
         return flag
     }
 
+    notice := NewEvent()
+
     if flag == Error {
-        configure.SetNotice(Ok)
+        notice.SetOpcode(Ok)
+        configure.Event <- notice
     }
 
     fc := (*fileConfigure)(unsafe.Pointer(content.GetType()))
@@ -230,17 +233,28 @@ func fileConfigureMain(cycle *Cycle) int {
 
     defer fc.watcher.Close()
 
+    tag := 0
+
     for {
         select {
 
         case event := <-fc.watcher.Events:
             log.Println("event:", event)
             if event.Op & fsnotify.Write == fsnotify.Write {
+                if tag == 0 {
+                    tag = 1
+                    notice.SetOpcode(RELOAD)
+                    configure.Event <- notice
+                }
+
                 log.Println("modified file:", event.Name)
             }
 
         case err := <-fc.watcher.Errors:
             log.Println("error:", err)
+
+        default:
+            tag = 0
         }
     }
 

@@ -10,8 +10,10 @@ import (
 
       "github.com/gorilla/mux"
     . "github.com/rookie-xy/worker/types"
-    "fmt"
     "strings"
+"time"
+"net"
+    "fmt"
 )
 
 const (
@@ -21,15 +23,77 @@ const (
 
 type HttpdCore struct {
     *Cycle
-//    *File
 
      listen    string
      timeout   int
      location  *LocationHttpd
+
+     listener   net.Listener
 }
 
 func NewHttpdCore() *HttpdCore {
     return &HttpdCore{}
+}
+
+func (hc *HttpdCore) Init() int {
+    document := hc.location.document
+    fmt.Println(document)
+    path := document[strings.LastIndex(document, "/") : ] + "/"
+    fmt.Println(path)
+    if path == "" {
+        hc.Error("paht is null")
+        return Error
+    }
+
+    router := mux.NewRouter()
+
+    file := http.StripPrefix(path, http.FileServer(http.Dir(path[1 : len(path) - 1])))
+
+    router.PathPrefix(path).Handler(file)
+
+    handler := &SwitchHandler{mux: router}
+    http.Handle("/", handler)
+
+    listener, error := net.Listen("tcp", hc.listen)
+    if error != nil {
+        return Error
+    }
+
+    hc.listener = listener
+
+    return Ok
+}
+
+func httpServer(p unsafe.Pointer) int {
+    listener := (*net.Listener)(unsafe.Pointer(p))
+    if listener == nil {
+        return Error
+    }
+
+    http.Serve(*listener, nil)
+
+    return Ok
+}
+
+func (hc *HttpdCore) Run() int {
+    if hc.Routine == nil {
+        hc.Error("routine is null")
+        return Error
+    }
+
+    hc.Routine.Go(0, httpServer, unsafe.Pointer(&hc.listener))
+
+    time.Sleep(time.Second * 1000)
+
+    return Ok
+}
+
+func (hc *HttpdCore) Quit() int {
+    if hc.listener != nil {
+        hc.listener.Close()
+    }
+
+    return Ok
 }
 
 var httpdCore = String{ len("httpd_core"), "httpd_core" }
@@ -71,7 +135,7 @@ var (
     timeout  = String{ len("timeout"), "timeout" }
     location = String{ len("location"), "location" }
 
-    coreHttpd  HttpdCore
+    coreHttpd HttpdCore
 )
 
 var coreHttpdCommands = []Command{
@@ -101,7 +165,13 @@ var coreHttpdCommands = []Command{
 }
 
 func locationBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(LOCATION_MODULE, LOCATION_CONFIG|CONFIG_VALUE)
+    if nil == cycle {
+        return Error
+    }
+
+    flag := LOCATION_CONFIG|CONFIG_VALUE
+    cycle.Block(cycle, LOCATION_MODULE, flag)
+
     return Ok
 }
 
@@ -116,15 +186,11 @@ var coreHttpdModule = Module{
 }
 
 func coreHttpdInit(cycle *Cycle) int {
-//    fmt.Println(coreHttpd.listen)
-//    fmt.Println(coreHttpd.timeout)
+    coreHttpd.Cycle = cycle
 
     if coreHttpd.location == nil {
         coreHttpd.location = &httpdLocation
     }
-
-//    fmt.Println(coreHttpd.location.document)
-//    fmt.Println(coreHttpd.location.bufsize)
 
     return Ok
 }
@@ -138,33 +204,22 @@ func (s *SwitchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func coreHttpdMain(cycle *Cycle) int {
-    fmt.Println("httpd main")
 
-    log := cycle.Log
-    fmt.Println(log.GetPath())
-
-    document := coreHttpd.location.document
-    path := document[strings.LastIndex(document, "/") : ] + "/"
-    if path == "" {
+    if coreHttpd.Init() == Error {
+        cycle.Error("init error")
         return Error
     }
 
-    r := mux.NewRouter()
+    if coreHttpd.Run() == Error {
+        cycle.Error("run error")
+        return Error
+    }
 
-    fmt.Println(path[1 : len(path) - 1])
+    coreHttpd.Quit()
 
-    s := http.StripPrefix(path, http.FileServer(http.Dir(path[1 : len(path) - 1])))
+    select {
+//    case status := <-
 
-    r.PathPrefix(path).Handler(s)
-
-    handler := &SwitchHandler{mux: r}
-    http.Handle("/", handler)
-
-    err := http.ListenAndServe(coreHttpd.listen, nil)
-    if err != nil {
-        fmt.Println("ok")
-    } else {
-        fmt.Println("error")
     }
 
     return Ok

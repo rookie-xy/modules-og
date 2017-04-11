@@ -36,7 +36,13 @@ var channelMemoryCommands = []Command{
 }
 
 func memoryBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(MEMORY_MODULE, MEMORY_CONFIG|CONFIG_VALUE)
+    if nil == cycle {
+        return Error
+    }
+
+    flag := MEMORY_CONFIG|CONFIG_VALUE
+    cycle.Block(cycle, MEMORY_MODULE, flag)
+
     return Ok
 }
 

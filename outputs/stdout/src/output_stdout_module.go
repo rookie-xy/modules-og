@@ -36,7 +36,13 @@ var outputStdoutCommands = []Command{
 }
 
 func stdoutBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(STDOUT_MODULE, STDOUT_CONFIG|CONFIG_VALUE)
+    if nil == cycle {
+        return Error
+    }
+
+    flag := STDOUT_CONFIG|CONFIG_VALUE
+    cycle.Block(cycle, STDOUT_MODULE, flag)
+
     return Ok
 }
 

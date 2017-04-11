@@ -36,7 +36,13 @@ var inputStdinCommands = []Command{
 }
 
 func stdinBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(STDIN_MODULE, STDIN_CONFIG|CONFIG_VALUE)
+    if nil == cycle {
+        return Error
+    }
+
+    flag := STDIN_CONFIG|CONFIG_VALUE
+    cycle.Block(cycle, STDIN_MODULE, flag)
+
     return Ok
 }
 

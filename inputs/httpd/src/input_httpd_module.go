@@ -36,7 +36,13 @@ var inputHttpdCommands = []Command{
 }
 
 func httpdBlock(cycle *Cycle, _ *Command, _ *unsafe.Pointer) int {
-    cycle.Configure.Block(HTTPD_MODULE, HTTPD_CONFIG|CONFIG_VALUE)
+    if nil == cycle {
+        return Error
+    }
+
+    flag := HTTPD_CONFIG|CONFIG_VALUE
+    cycle.Block(cycle, HTTPD_MODULE, flag)
+
     return Ok
 }
 
