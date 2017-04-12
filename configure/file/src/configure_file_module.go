@@ -12,6 +12,7 @@ import (
 
     "unsafe"
     "log"
+    "fmt"
 )
 
 type fileConfigure struct {
@@ -187,7 +188,29 @@ func fileConfigureInit(cycle *Cycle) int {
     if error := fileConfigure.watcher.Add(resource); error != nil {
         return Error
     }
+/*
+    defer fileConfigure.watcher.Close()
+    done := make(chan bool)
+go func() {
+    for {
+        select {
 
+        case event := <-fileConfigure.watcher.Events:
+            fmt.Printf("KKKKKKKKKKKKKKKKKKKKKK: %d\n", event.Op)
+            if event.Op & fsnotify.Write == fsnotify.Write {
+                //notice.SetOpcode(RELOAD)
+                //configure.Event <- notice
+
+                //log.Println("event:", event)
+                log.Println("modified file:", event.Name)
+            }
+
+        case err := <-fileConfigure.watcher.Errors:
+            log.Println("error:", err)
+        }
+    }
+}()
+*/
     if cycle.SetConfigure(configure) == Error {
         return Error
     }
@@ -195,6 +218,8 @@ func fileConfigureInit(cycle *Cycle) int {
     if configure.SetHandle(fileConfigure) == Error {
         return Error
     }
+
+//    <-done
 
     return Ok
 }
@@ -226,35 +251,32 @@ func fileConfigureMain(cycle *Cycle) int {
         configure.Event <- notice
     }
 
-    fc := (*fileConfigure)(unsafe.Pointer(content.GetType()))
+    p := content.GetType()
+
+    fc := (*fileConfigure)(unsafe.Pointer(uintptr(p)))
     if fc == nil {
         return Error
     }
 
     defer fc.watcher.Close()
 
-    tag := 0
+    fmt.Println("hhhhhhhhhhhhhhhhhhhhhh mengshiiiiiiiiiiiiiiiiiiiii")
 
     for {
         select {
 
         case event := <-fc.watcher.Events:
-            log.Println("event:", event)
+            fmt.Printf("KKKKKKKKKKKKKKKKKKKKKK: %d\n", event.Op)
             if event.Op & fsnotify.Write == fsnotify.Write {
-                if tag == 0 {
-                    tag = 1
-                    notice.SetOpcode(RELOAD)
-                    configure.Event <- notice
-                }
+                notice.SetOpcode(RELOAD)
+                configure.Event <- notice
 
-                log.Println("modified file:", event.Name)
+                //log.Println("event:", event)
+                //log.Println("modified file:", event.Name)
             }
 
         case err := <-fc.watcher.Errors:
             log.Println("error:", err)
-
-        default:
-            tag = 0
         }
     }
 
