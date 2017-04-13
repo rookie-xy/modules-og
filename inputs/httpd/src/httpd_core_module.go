@@ -82,13 +82,14 @@ func (hc *HttpdCore) Run() int {
     }
 
     hc.Routine.Go(0, httpServer, unsafe.Pointer(&hc.listener))
+    fmt.Println("wwwwwwwwwwwwwwwwwwwwwww")
 
     time.Sleep(time.Second * 1000)
 
     return Ok
 }
 
-func (hc *HttpdCore) Quit() int {
+func (hc *HttpdCore) Clear() int {
     if hc.listener != nil {
         hc.listener.Close()
     }
@@ -126,6 +127,7 @@ func coreHttpdContextInit(cycle *Cycle, context *unsafe.Pointer) string {
     }
 
     coreHttpd = *this
+    fmt.Println(coreHttpd.listen)
 
     return "0"
 }
@@ -215,12 +217,26 @@ func coreHttpdMain(cycle *Cycle) int {
         return Error
     }
 
-    coreHttpd.Quit()
+    quit := false
 
-    select {
-//    case status := <-
+    for {
+        select {
 
+        case e := <-cycle.Event:
+        fmt.Printf("ZHANGYUEEEEEEEEEEIIIIIIIIIIIIIIIII: %X, %X\n", e.GetOpcode(), HTTPD_MODULE)
+            if op := e.GetOpcode(); op == HTTPD_MODULE {
+                quit = true
+                fmt.Println("breakkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+            }
+        }
+
+        if quit {
+            break
+        }
     }
+
+    fmt.Println("aaaaaaaaaaaaaaaaa")
+    coreHttpd.Clear()
 
     return Ok
 }

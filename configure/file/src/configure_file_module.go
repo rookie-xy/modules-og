@@ -15,6 +15,11 @@ import (
     "fmt"
 )
 
+const (
+    RESOURCE = "/data/service"
+    FILENAME = "configure"
+)
+
 type fileConfigure struct {
     *Configure
 
@@ -22,11 +27,19 @@ type fileConfigure struct {
 
      resource     string
      fileName     string
+
+     Notice       chan *Event
 }
 
 func NewFileConfigure(configure *Configure) *fileConfigure {
-    fc := &fileConfigure{}
-    fc.Configure = configure
+    fc := &fileConfigure{
+        Configure: configure,
+        watcher:   fsnotify.NewWatcher(),
+        resource:  RESOURCE,
+        fileName:  FILENAME,
+        Notice:    NewEvent(),
+    }
+
     return fc
 }
 
@@ -122,6 +135,10 @@ func (fc *fileConfigure) GetType() unsafe.Pointer {
     return unsafe.Pointer(fc)
 }
 
+func (fc *fileConfigure) Clear() {
+    return
+}
+
 func fileConfigureInit(cycle *Cycle) int {
     option := cycle.GetOption()
     if option == nil {
@@ -156,13 +173,6 @@ func fileConfigureInit(cycle *Cycle) int {
         return Error
     }
 
-    if watcher, error := fsnotify.NewWatcher(); error != nil {
-        //fileConfigure.Error(error)
-        return Error
-    } else {
-        fileConfigure.watcher = watcher
-    }
-
     if fileConfigure.SetName(fileType) == Error {
         return Error
     }
@@ -188,29 +198,7 @@ func fileConfigureInit(cycle *Cycle) int {
     if error := fileConfigure.watcher.Add(resource); error != nil {
         return Error
     }
-/*
-    defer fileConfigure.watcher.Close()
-    done := make(chan bool)
-go func() {
-    for {
-        select {
 
-        case event := <-fileConfigure.watcher.Events:
-            fmt.Printf("KKKKKKKKKKKKKKKKKKKKKK: %d\n", event.Op)
-            if event.Op & fsnotify.Write == fsnotify.Write {
-                //notice.SetOpcode(RELOAD)
-                //configure.Event <- notice
-
-                //log.Println("event:", event)
-                log.Println("modified file:", event.Name)
-            }
-
-        case err := <-fileConfigure.watcher.Errors:
-            log.Println("error:", err)
-        }
-    }
-}()
-*/
     if cycle.SetConfigure(configure) == Error {
         return Error
     }
@@ -219,13 +207,12 @@ go func() {
         return Error
     }
 
-//    <-done
-
     return Ok
 }
 
 func fileConfigureMain(cycle *Cycle) int {
     flag := Error
+
     configure := cycle.GetConfigure()
     if configure == nil {
         return flag
@@ -251,34 +238,45 @@ func fileConfigureMain(cycle *Cycle) int {
         configure.Event <- notice
     }
 
-    p := content.GetType()
+    fcp := content.GetType()
+    if fcp == nil {
+        return Error
+    }
 
-    fc := (*fileConfigure)(unsafe.Pointer(uintptr(p)))
+    fc := (*fileConfigure)(unsafe.Pointer(uintptr(fcp)))
     if fc == nil {
         return Error
     }
 
     defer fc.watcher.Close()
 
-    fmt.Println("hhhhhhhhhhhhhhhhhhhhhh mengshiiiiiiiiiiiiiiiiiiiii")
+    quit := false
 
     for {
         select {
 
         case event := <-fc.watcher.Events:
-            fmt.Printf("KKKKKKKKKKKKKKKKKKKKKK: %d\n", event.Op)
             if event.Op & fsnotify.Write == fsnotify.Write {
                 notice.SetOpcode(RELOAD)
                 configure.Event <- notice
-
-                //log.Println("event:", event)
-                //log.Println("modified file:", event.Name)
             }
 
         case err := <-fc.watcher.Errors:
             log.Println("error:", err)
+
+        case e := <-fc.Notice:
+            fmt.Printf("MENGSHIIIIIIIIIIIIIIIII: %X, %X\n", e.GetOpcode(), SYSTEM_MODULE)
+            if op := e.GetOpcode(); op == SYSTEM_MODULE {
+                quit = true
+            }
+        }
+
+        if quit {
+            break
         }
     }
+
+    fc.Clear()
 
     return Ok
 }

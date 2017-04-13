@@ -43,7 +43,7 @@ func (yc *yamlConfigure) Unmarshal(in []byte, out interface{}) int {
     return Ok
 }
 
-func initYamlConfigureModule(cycle *Cycle) int {
+func yamlConfigureInit(cycle *Cycle) int {
     log := cycle.Log
 
     configure := cycle.GetConfigure()
@@ -78,7 +78,7 @@ var YamlConfigureModule = Module{
     nil,
     nil,
     SYSTEM_MODULE,
-    initYamlConfigureModule,
+    yamlConfigureInit,
     nil,
 }
 
