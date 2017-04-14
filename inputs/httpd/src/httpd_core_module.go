@@ -63,14 +63,36 @@ func (hc *HttpdCore) Init() int {
 
     return Ok
 }
+/*
+func httpServer(args ...interface{}) int {
+    var i interface{}
 
-func httpServer(p unsafe.Pointer) int {
-    listener := (*net.Listener)(unsafe.Pointer(p))
-    if listener == nil {
+    l := len(args)
+    switch l {
+    case 1:
+        i = args[l-1]
+    default:
+
+    }
+
+    e := i.([]interface{})
+    listener := e[0].(net.Listener)
+    //name := e[1].(string)
+
+    http.Serve(listener, nil)
+
+    return Ok
+}
+*/
+
+func httpServer(argv interface{}) int {
+    if argv == nil {
         return Error
     }
 
-    http.Serve(*listener, nil)
+    listener := argv.(net.Listener)
+
+    http.Serve(listener, nil)
 
     return Ok
 }
@@ -81,16 +103,18 @@ func (hc *HttpdCore) Run() int {
         return Error
     }
 
-    hc.Routine.Go(0, httpServer, unsafe.Pointer(&hc.listener))
-    fmt.Println("wwwwwwwwwwwwwwwwwwwwwww")
+    hc.Routine.Go("httpServer", httpServer, hc.listener)
 
-    time.Sleep(time.Second * 1000)
+    time.Sleep(time.Second * 10)
+
+    fmt.Println("quit runuuuuuuuuuuuuuuuuuuuuuuuuuu")
 
     return Ok
 }
 
 func (hc *HttpdCore) Clear() int {
     if hc.listener != nil {
+        fmt.Println("closeeeeeeeeeeeeeeeeeeeeee")
         hc.listener.Close()
     }
 
@@ -127,7 +151,6 @@ func coreHttpdContextInit(cycle *Cycle, context *unsafe.Pointer) string {
     }
 
     coreHttpd = *this
-    fmt.Println(coreHttpd.listen)
 
     return "0"
 }
@@ -216,7 +239,7 @@ func coreHttpdMain(cycle *Cycle) int {
         cycle.Error("run error")
         return Error
     }
-
+/*
     quit := false
 
     for {
@@ -236,6 +259,7 @@ func coreHttpdMain(cycle *Cycle) int {
     }
 
     fmt.Println("aaaaaaaaaaaaaaaaa")
+    */
     coreHttpd.Clear()
 
     return Ok

@@ -12,7 +12,6 @@ import (
 
     "unsafe"
     "log"
-    "fmt"
 )
 
 const (
@@ -34,10 +33,9 @@ type fileConfigure struct {
 func NewFileConfigure(configure *Configure) *fileConfigure {
     fc := &fileConfigure{
         Configure: configure,
-        watcher:   fsnotify.NewWatcher(),
         resource:  RESOURCE,
         fileName:  FILENAME,
-        Notice:    NewEvent(),
+        Notice:    make(chan *Event),
     }
 
     return fc
@@ -173,6 +171,12 @@ func fileConfigureInit(cycle *Cycle) int {
         return Error
     }
 
+    if watcher, error := fsnotify.NewWatcher(); error != nil {
+        return Error
+    } else {
+        fileConfigure.watcher = watcher
+    }
+
     if fileConfigure.SetName(fileType) == Error {
         return Error
     }
@@ -265,7 +269,6 @@ func fileConfigureMain(cycle *Cycle) int {
             log.Println("error:", err)
 
         case e := <-fc.Notice:
-            fmt.Printf("MENGSHIIIIIIIIIIIIIIIII: %X, %X\n", e.GetOpcode(), SYSTEM_MODULE)
             if op := e.GetOpcode(); op == SYSTEM_MODULE {
                 quit = true
             }
