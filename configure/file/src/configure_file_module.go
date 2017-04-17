@@ -27,7 +27,7 @@ type fileConfigure struct {
      resource     string
      fileName     string
 
-     Notice       chan *Event
+     Notice      *Event
 }
 
 func NewFileConfigure(configure *Configure) *fileConfigure {
@@ -35,7 +35,7 @@ func NewFileConfigure(configure *Configure) *fileConfigure {
         Configure: configure,
         resource:  RESOURCE,
         fileName:  FILENAME,
-        Notice:    make(chan *Event),
+        Notice:    NewEvent(),
     }
 
     return fc
@@ -238,8 +238,11 @@ func fileConfigureMain(cycle *Cycle) int {
     notice := NewEvent()
 
     if flag == Error {
-        notice.SetOpcode(Ok)
-        configure.Event <- notice
+        notice.SetOpcode(LOAD)
+        notice.SetName("load")
+        configure.Event = notice
+        //configure.Event <- notice
+        configure.Event.SetNotice()
     }
 
     fcp := content.GetType()
@@ -262,13 +265,16 @@ func fileConfigureMain(cycle *Cycle) int {
         case event := <-fc.watcher.Events:
             if event.Op & fsnotify.Write == fsnotify.Write {
                 notice.SetOpcode(RELOAD)
-                configure.Event <- notice
+                notice.SetName("reload")
+                //configure.Event <- notice
+                configure.Event = notice
+                configure.Event.SetNotice()
             }
 
         case err := <-fc.watcher.Errors:
             log.Println("error:", err)
 
-        case e := <-fc.Notice:
+        case e := <-fc.Notice.GetNotice():
             if op := e.GetOpcode(); op == SYSTEM_MODULE {
                 quit = true
             }
