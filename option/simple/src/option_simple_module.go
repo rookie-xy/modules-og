@@ -113,6 +113,7 @@ var SimpleOptionModule = Module{
     SYSTEM_MODULE,
     simpleOptionInit,
     nil,
+    nil,
 }
 
 func init() {

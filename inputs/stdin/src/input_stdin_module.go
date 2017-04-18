@@ -54,6 +54,7 @@ var inputStdinModule = Module{
     INPUT_MODULE,
     nil,
     nil,
+    nil,
 }
 
 func init() {

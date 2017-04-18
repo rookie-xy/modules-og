@@ -87,6 +87,7 @@ var coreStdinModule = Module{
     STDIN_MODULE,
     coreStdinInit,
     coreStdinMain,
+    coreStdinExit,
 }
 
 func coreStdinInit(cycle *Cycle) int {
@@ -108,6 +109,10 @@ func coreStdinInit(cycle *Cycle) int {
 }
 
 func coreStdinMain(cycle *Cycle) int {
+    return Ok
+}
+
+func coreStdinExit(cycle *Cycle) int {
     return Ok
 }
 

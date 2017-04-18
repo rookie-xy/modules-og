@@ -54,6 +54,7 @@ var channelMemoryModule = Module{
     CHANNEL_MODULE,
     nil,
     nil,
+    nil,
 }
 
 func init() {

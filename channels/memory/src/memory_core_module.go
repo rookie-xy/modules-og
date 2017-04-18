@@ -87,6 +87,7 @@ var coreMemoryModule = Module{
     MEMORY_MODULE,
     coreMemoryInit,
     coreMemoryMain,
+    coreMemoryExit,
 }
 
 func coreMemoryInit(cycle *Cycle) int {
@@ -94,6 +95,10 @@ func coreMemoryInit(cycle *Cycle) int {
 }
 
 func coreMemoryMain(cycle *Cycle) int {
+    return Ok
+}
+
+func coreMemoryExit(cycle *Cycle) int {
     return Ok
 }
 

@@ -208,6 +208,7 @@ var coreHttpdModule = Module{
     HTTPD_MODULE,
     coreHttpdInit,
     coreHttpdMain,
+    coreHttpdExit,
 }
 
 func coreHttpdInit(cycle *Cycle) int {
@@ -262,6 +263,10 @@ func coreHttpdMain(cycle *Cycle) int {
     */
     coreHttpd.Clear()
 
+    return Ok
+}
+
+func coreHttpdExit(cycle *Cycle) int {
     return Ok
 }
 

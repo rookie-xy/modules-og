@@ -54,6 +54,7 @@ var outputStdoutModule = Module{
     OUTPUT_MODULE,
     nil,
     nil,
+    nil,
 }
 
 func init() {

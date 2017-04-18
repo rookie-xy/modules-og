@@ -84,6 +84,7 @@ var httpdLocationModule = Module{
     LOCATION_MODULE,
     nil,
     nil,
+    nil,
 }
 
 func init() {

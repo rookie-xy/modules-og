@@ -19,7 +19,7 @@ const (
     FILENAME = "configure"
 )
 
-type fileConfigure struct {
+type FileConfigure struct {
     *Configure
 
      watcher     *fsnotify.Watcher
@@ -27,21 +27,19 @@ type fileConfigure struct {
      resource     string
      fileName     string
 
-     Notice      *Event
+     Notice       chan *Event
 }
 
-func NewFileConfigure(configure *Configure) *fileConfigure {
-    fc := &fileConfigure{
+func NewFileConfigure(configure *Configure) *FileConfigure {
+    return &FileConfigure{
         Configure: configure,
         resource:  RESOURCE,
         fileName:  FILENAME,
-        Notice:    NewEvent(),
+        Notice:    make(chan *Event),
     }
-
-    return fc
 }
 
-func (fc *fileConfigure) SetConfigure(configure *Configure) int {
+func (fc *FileConfigure) SetConfigure(configure *Configure) int {
     if configure == nil {
         return Error
     }
@@ -51,11 +49,11 @@ func (fc *fileConfigure) SetConfigure(configure *Configure) int {
     return Ok
 }
 
-func (fc *fileConfigure) GetConfigure() *Configure {
+func (fc *FileConfigure) GetConfigure() *Configure {
     return fc.Configure
 }
 
-func (fc *fileConfigure) SetResource(resource string) int {
+func (fc *FileConfigure) SetResource(resource string) int {
     if resource == "" {
         return Error
     }
@@ -65,7 +63,7 @@ func (fc *fileConfigure) SetResource(resource string) int {
     return Ok
 }
 
-func (fc *fileConfigure) GetResource() string {
+func (fc *FileConfigure) GetResource() string {
     if fc.resource == "" {
         return ""
     }
@@ -73,7 +71,7 @@ func (fc *fileConfigure) GetResource() string {
     return fc.resource
 }
 
-func (fc *fileConfigure) SetFileName(fileName string) int {
+func (fc *FileConfigure) SetFileName(fileName string) int {
     if fileName == "" {
         return Error
     }
@@ -83,11 +81,11 @@ func (fc *fileConfigure) SetFileName(fileName string) int {
     return Ok
 }
 
-func (fc *fileConfigure) GetFileName() string {
+func (fc *FileConfigure) GetFileName() string {
     return fc.fileName
 }
 
-func (fc *fileConfigure) Set() int {
+func (fc *FileConfigure) Set() int {
     if fc.AbstractFile == nil {
         fc.Error("file configure set error")
         return Error
@@ -111,7 +109,7 @@ func (fc *fileConfigure) Set() int {
     return Ok
 }
 
-func (fc *fileConfigure) Get() int {
+func (fc *FileConfigure) Get() int {
     if fc.AbstractFile == nil {
         fc.AbstractFile = NewAbstractFile(fc.Log)
     }
@@ -129,13 +127,15 @@ func (fc *fileConfigure) Get() int {
     return Ok
 }
 
-func (fc *fileConfigure) GetType() unsafe.Pointer {
+func (fc *FileConfigure) GetType() unsafe.Pointer {
     return unsafe.Pointer(fc)
 }
 
-func (fc *fileConfigure) Clear() {
+func (fc *FileConfigure) Clear() {
     return
 }
+
+var fileConfigure *FileConfigure
 
 func fileConfigureInit(cycle *Cycle) int {
     option := cycle.GetOption()
@@ -166,7 +166,7 @@ func fileConfigureInit(cycle *Cycle) int {
         }
     }
 
-    fileConfigure := NewFileConfigure(configure)
+    fileConfigure = NewFileConfigure(configure)
     if fileConfigure == nil {
         return Error
     }
@@ -240,9 +240,7 @@ func fileConfigureMain(cycle *Cycle) int {
     if flag == Error {
         notice.SetOpcode(LOAD)
         notice.SetName("load")
-        configure.Event = notice
-        //configure.Event <- notice
-        configure.Event.SetNotice()
+        configure.Event <- notice
     }
 
     fcp := content.GetType()
@@ -250,7 +248,7 @@ func fileConfigureMain(cycle *Cycle) int {
         return Error
     }
 
-    fc := (*fileConfigure)(unsafe.Pointer(uintptr(fcp)))
+    fc := (*FileConfigure)(unsafe.Pointer(uintptr(fcp)))
     if fc == nil {
         return Error
     }
@@ -266,18 +264,17 @@ func fileConfigureMain(cycle *Cycle) int {
             if event.Op & fsnotify.Write == fsnotify.Write {
                 notice.SetOpcode(RELOAD)
                 notice.SetName("reload")
-                //configure.Event <- notice
-                configure.Event = notice
-                configure.Event.SetNotice()
+                configure.Event <- notice
             }
 
         case err := <-fc.watcher.Errors:
             log.Println("error:", err)
-
+        /*
         case e := <-fc.Notice.GetNotice():
             if op := e.GetOpcode(); op == SYSTEM_MODULE {
                 quit = true
             }
+            */
         }
 
         if quit {
@@ -290,6 +287,14 @@ func fileConfigureMain(cycle *Cycle) int {
     return Ok
 }
 
+func fileConfigureExit(cycle *Cycle) int {
+    //fileConfigure.Event <- 1
+
+    fileConfigure.Clear()
+//    fileConfigure.Quit()
+    return Ok
+}
+
 var FileConfigureModule = Module{
     MODULE_V1,
     CONTEXT_V1,
@@ -298,6 +303,7 @@ var FileConfigureModule = Module{
     SYSTEM_MODULE,
     fileConfigureInit,
     fileConfigureMain,
+    fileConfigureExit,
 }
 
 func init() {

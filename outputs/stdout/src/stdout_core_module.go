@@ -87,6 +87,7 @@ var coreStdoutModule = Module{
     STDOUT_MODULE,
     coreStdoutInit,
     coreStdoutMain,
+    coreStdoutExit,
 }
 
 func coreStdoutInit(cycle *Cycle) int {
@@ -94,6 +95,10 @@ func coreStdoutInit(cycle *Cycle) int {
 }
 
 func coreStdoutMain(cycle *Cycle) int {
+    return Ok
+}
+
+func coreStdoutExit(cycle *Cycle) int {
     return Ok
 }
 

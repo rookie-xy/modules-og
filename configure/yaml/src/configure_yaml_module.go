@@ -80,6 +80,7 @@ var YamlConfigureModule = Module{
     SYSTEM_MODULE,
     yamlConfigureInit,
     nil,
+    nil,
 }
 
 func init() {
