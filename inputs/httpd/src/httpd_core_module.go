@@ -22,11 +22,14 @@ const (
 )
 
 type HttpdCore struct {
-    *Cycle
+    *Log
+    //*Cycle
+    *Routine
 
      listen    string
      timeout   int
      location  *LocationHttpd
+     gid       []*int64
 
      listener   net.Listener
 }
@@ -103,18 +106,19 @@ func (hc *HttpdCore) Run() int {
         return Error
     }
 
-    hc.Routine.Go("httpServer", httpServer, hc.listener)
+    if gid := hc.Routine.Go("httpServer", httpServer,
+                            hc.listener); gid != -1 {
+        hc.gid = append(hc.gid, gid)
 
-    time.Sleep(time.Second * 10)
-
-    fmt.Println("quit runuuuuuuuuuuuuuuuuuuuuuuuuuu")
+    } else {
+        return Error
+    }
 
     return Ok
 }
 
 func (hc *HttpdCore) Clear() int {
     if hc.listener != nil {
-        fmt.Println("closeeeeeeeeeeeeeeeeeeeeee")
         hc.listener.Close()
     }
 
@@ -212,7 +216,8 @@ var coreHttpdModule = Module{
 }
 
 func coreHttpdInit(cycle *Cycle) int {
-    coreHttpd.Cycle = cycle
+    coreHttpd.Log = cycle.Log
+    coreHttpd.Routine = cycle.Routine
 
     if coreHttpd.location == nil {
         coreHttpd.location = &httpdLocation
@@ -230,7 +235,6 @@ func (s *SwitchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func coreHttpdMain(cycle *Cycle) int {
-
     if coreHttpd.Init() == Error {
         cycle.Error("init error")
         return Error
@@ -240,6 +244,47 @@ func coreHttpdMain(cycle *Cycle) int {
         cycle.Error("run error")
         return Error
     }
+
+    //coreHttpd.Routine.Check(coreHttpd.gid, BLOCKING)
+    for {
+        for _, id := range coreHttpd.gid {
+            event := coreHttpd.Routine.GetEvent(id)
+            if event != nil {
+                select {
+
+                case e := <-event.This:
+                    op := e.GetOpcode()
+                    switch op {
+                    case RELOAD:
+                        goto QUIT
+                    }
+                }
+            }
+        }
+    }
+
+QUIT:
+    coreHttpd.Clear()
+
+    return Ok
+}
+
+func coreHttpdExit(_ *Cycle) int {
+    for _, id := range coreHttpd.gid {
+        event := coreHttpd.Routine.GetEvent(id)
+        if event != nil {
+            event.SetOpcode(RELOAD)
+            event.This <- event
+        }
+    }
+
+    return Ok
+}
+
+func init() {
+    Modules = Load(Modules, &coreHttpdModule)
+}
+
 /*
     quit := false
 
@@ -261,15 +306,3 @@ func coreHttpdMain(cycle *Cycle) int {
 
     fmt.Println("aaaaaaaaaaaaaaaaa")
     */
-    coreHttpd.Clear()
-
-    return Ok
-}
-
-func coreHttpdExit(cycle *Cycle) int {
-    return Ok
-}
-
-func init() {
-    Modules = Load(Modules, &coreHttpdModule)
-}
