@@ -12,6 +12,7 @@ import (
 
     "unsafe"
     "log"
+    "fmt"
 )
 
 const (
@@ -37,6 +38,13 @@ func NewFileConfigure(configure *Configure) *FileConfigure {
         fileName:  FILENAME,
         Notice:    make(chan *Event),
     }
+}
+
+var fileConfig = String{ len("file_configure"), "file_configure" }
+var fileConfigureCtx = &Context{
+    fileConfig,
+    nil,
+    nil,
 }
 
 func (fc *FileConfigure) SetConfigure(configure *Configure) int {
@@ -214,7 +222,9 @@ func fileConfigureInit(cycle *Cycle) int {
     return Ok
 }
 
-func fileConfigureMain(cycle *Cycle) int {
+//func fileConfigureMain(cycle *Cycle) int {
+func fileConfigureMain(args ...interface{}) int {
+    cycle := args.(Cycle)
     flag := Error
 
     configure := cycle.GetConfigure()
@@ -262,6 +272,7 @@ func fileConfigureMain(cycle *Cycle) int {
 
         case event := <-fc.watcher.Events:
             if event.Op & fsnotify.Write == fsnotify.Write {
+                fmt.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
                 notice.SetOpcode(RELOAD)
                 notice.SetName("reload")
                 configure.Event <- notice
@@ -298,7 +309,7 @@ func fileConfigureExit(cycle *Cycle) int {
 var FileConfigureModule = Module{
     MODULE_V1,
     CONTEXT_V1,
-    nil,
+    unsafe.Pointer(fileConfigureCtx),
     nil,
     SYSTEM_MODULE,
     fileConfigureInit,

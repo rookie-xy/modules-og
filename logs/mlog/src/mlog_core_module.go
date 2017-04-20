@@ -53,7 +53,7 @@ func coreMlogContextInit(cycle *Cycle, context *unsafe.Pointer) string {
         return "0"
     }
 
-    for i, v := range Level {
+    for i, v := range Levels {
         if v == level {
             if log.SetLevel(i) == Error {
                 return "error"
@@ -100,7 +100,8 @@ var coreMlogModule = Module{
     coreMlogCommands,
     MLOG_MODULE,
     coreMlogInit,
-    coreMlogMain,
+    nil,
+    nil,
 }
 
 func coreMlogInit(cycle *Cycle) int {
@@ -108,10 +109,11 @@ func coreMlogInit(cycle *Cycle) int {
     //fmt.Println(log.GetPath())
     return Ok
 }
-
+/*
 func coreMlogMain(cycle *Cycle) int {
     return Ok
 }
+*/
 
 func init() {
     Modules = Load(Modules, &coreMlogModule)

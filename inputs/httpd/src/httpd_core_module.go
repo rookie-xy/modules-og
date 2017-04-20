@@ -11,9 +11,9 @@ import (
       "github.com/gorilla/mux"
     . "github.com/rookie-xy/worker/types"
     "strings"
-"time"
 "net"
     "fmt"
+    "time"
 )
 
 const (
@@ -22,14 +22,14 @@ const (
 )
 
 type HttpdCore struct {
-    *Log
-    //*Cycle
-    *Routine
+    //*Log
+    *Cycle
+    //*Routine
 
      listen    string
      timeout   int
      location  *LocationHttpd
-     gid       []*int64
+     gid       []int64
 
      listener   net.Listener
 }
@@ -108,10 +108,15 @@ func (hc *HttpdCore) Run() int {
 
     if gid := hc.Routine.Go("httpServer", httpServer,
                             hc.listener); gid != -1 {
+
         hc.gid = append(hc.gid, gid)
 
     } else {
         return Error
+    }
+
+    select {
+
     }
 
     return Ok
@@ -216,8 +221,10 @@ var coreHttpdModule = Module{
 }
 
 func coreHttpdInit(cycle *Cycle) int {
-    coreHttpd.Log = cycle.Log
-    coreHttpd.Routine = cycle.Routine
+    coreHttpd.Cycle = cycle
+    //coreHttpd.Log = cycle.Log
+    //coreHttpd.Routine = cycle.Routine
+    fmt.Println(coreHttpd.listen)
 
     if coreHttpd.location == nil {
         coreHttpd.location = &httpdLocation
@@ -245,8 +252,10 @@ func coreHttpdMain(cycle *Cycle) int {
         return Error
     }
 
+    time.Sleep(1000)
+
     //coreHttpd.Routine.Check(coreHttpd.gid, BLOCKING)
-    for {
+    /*
         for _, id := range coreHttpd.gid {
             event := coreHttpd.Routine.GetEvent(id)
             if event != nil {
@@ -261,9 +270,9 @@ func coreHttpdMain(cycle *Cycle) int {
                 }
             }
         }
-    }
 
 QUIT:
+*/
     coreHttpd.Clear()
 
     return Ok
@@ -284,25 +293,3 @@ func coreHttpdExit(_ *Cycle) int {
 func init() {
     Modules = Load(Modules, &coreHttpdModule)
 }
-
-/*
-    quit := false
-
-    for {
-        select {
-
-        case e := <-cycle.Event:
-        fmt.Printf("ZHANGYUEEEEEEEEEEIIIIIIIIIIIIIIIII: %X, %X\n", e.GetOpcode(), HTTPD_MODULE)
-            if op := e.GetOpcode(); op == HTTPD_MODULE {
-                quit = true
-                fmt.Println("breakkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-            }
-        }
-
-        if quit {
-            break
-        }
-    }
-
-    fmt.Println("aaaaaaaaaaaaaaaaa")
-    */

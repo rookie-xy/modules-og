@@ -104,6 +104,7 @@ func coreStdinInit(cycle *Cycle) int {
 
     fmt.Println(this.channel)
     */
+    fmt.Println("core stdin init")
 
     return Ok
 }
